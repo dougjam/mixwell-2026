@@ -24,6 +24,11 @@ const fallbackVideoId = c.links.supplementalVideoId; // used when WebGPU is unav
     </header>
 
     <section class="section" aria-label="Demo">
+      <p class="prose muted tip">
+        <strong>Tip:</strong> set your browser zoom to <strong>100%</strong> for
+        true 1-to-1 pixel viewing. Other zoom levels resample the canvas and can
+        blur the result.
+      </p>
       <WebGPUMount poster="thumbs/webgpu-demo.webp" fallbackImage={c.teaser.image}>
         {
           fallbackVideoId ? (
@@ -51,3 +56,9 @@ const fallbackVideoId = c.links.supplementalVideoId; // used when WebGPU is unav
     </section>
   </div>
 </Base>
+
+<style>
+  .tip {
+    margin-bottom: var(--space-4);
+  }
+</style>
