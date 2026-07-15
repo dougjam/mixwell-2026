@@ -1,0 +1,57 @@
+---
+// Prominent "Work in Progress" notice for pages whose content is not yet
+// finalized and shouldn't be taken literally by public visitors.
+interface Props {
+  message?: string;
+}
+const {
+  message = 'This page is a work in progress. Its content is incomplete and may be inaccurate or change without notice — please don’t rely on it yet.',
+} = Astro.props;
+---
+
+<aside class="wip" role="note" aria-label="Work in progress">
+  <span class="wip__tag">🚧 Work in Progress</span>
+  <p class="wip__msg">{message}</p>
+</aside>
+
+<style>
+  .wip {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+    padding: var(--space-4) var(--space-6);
+    border: 1px solid var(--wip-border);
+    border-left: 4px solid var(--wip-accent);
+    border-radius: var(--radius);
+    background: var(--wip-bg);
+  }
+  .wip__tag {
+    font-weight: 700;
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--wip-accent);
+  }
+  .wip__msg {
+    margin: 0;
+    color: var(--text);
+    font-size: var(--step-0);
+    max-width: var(--prose-width);
+  }
+
+  /* Amber callout — no site warning token exists, so define theme-aware
+     values here. */
+  .wip {
+    --wip-bg: #fff8ec;
+    --wip-border: #f4d38a;
+    --wip-accent: #b7791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    .wip {
+      --wip-bg: #241c0d;
+      --wip-border: #4d3d1a;
+      --wip-accent: #e8b04b;
+    }
+  }
+</style>

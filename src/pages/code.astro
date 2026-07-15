@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import CodeBlock from '../components/CodeBlock.astro';
+import WipBanner from '../components/WipBanner.astro';
 import { libraries, repoFolderUrl, siteConfig } from '../lib/data';
 ---
 
@@ -11,10 +12,12 @@ import { libraries, repoFolderUrl, siteConfig } from '../lib/data';
       <h1>Code &amp; Libraries</h1>
       <p class="prose muted">
         Drop-in implementations of the Mixwell brushes and Reverse-Drift Functions across
-        shading languages and DCC integrations. Each library lives in the <a href={siteConfig.codeRepoUrl} target="_blank" rel="noopener noreferrer"> public 
+        shading languages and DCC integrations. Each library lives in the <a href={siteConfig.codeRepoUrl} target="_blank" rel="noopener noreferrer"> public
 		code repository</a>; the snippets below show a minimal usage pattern.
       </p>
     </header>
+
+    <WipBanner />
 
     <div class="libs">
       {

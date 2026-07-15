@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import ShaderToyCard from '../../components/ShaderToyCard.astro';
 import CardGrid from '../../components/CardGrid.astro';
+import WipBanner from '../../components/WipBanner.astro';
 import { shaders } from '../../lib/data';
 ---
 
@@ -16,6 +17,8 @@ import { shaders } from '../../lib/data';
         nothing runs until you ask it to.
       </p>
     </header>
+
+    <WipBanner />
 
     <section class="section" aria-label="Shaders">
       {
