@@ -27,19 +27,22 @@
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <canvas class="emscripten" id="canvas" tabindex="1"></canvas>
 
     <script type="text/javascript">
         var Module = {
             canvas: (function () {
                 var canvas = document.getElementById('canvas');
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+                var dpr = window.devicePixelRatio;
+                canvas.width = Math.ceil(dpr * window.innerWidth);
+                canvas.height = Math.ceil(dpr * window.innerHeight);
                 return canvas;
             })(),
 
-            onRuntimeInitialized: function () {
-                console.log("Emscripten runtime initialized.");
+            postRun: function () {
+                var canvas = document.getElementById('canvas');
+                if (canvas)
+                    canvas.focus();
             },
 
             onExit: function (code) {
