@@ -1,0 +1,140 @@
+---
+import '../styles/global.css';
+import 'katex/dist/katex.min.css';
+import { withBase } from '../lib/paths';
+import { siteConfig } from '../lib/data';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const pageTitle = title ? `${title} · Mixwell` : siteConfig.title;
+// SEO meta description only (not shown on the page): first sentence of the abstract.
+const pageDesc = description ?? `${siteConfig.abstract.split('. ')[0]}.`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+const nav = [
+  { label: 'Home', href: '/' },
+  { label: 'Demo', href: '/demos/webgpu' },
+  { label: 'Shaders', href: '/demos/shaders' },
+  { label: 'Code', href: '/code' },
+];
+
+const current = Astro.url.pathname.replace(/\/$/, '');
+function isActive(href: string) {
+  const target = withBase(href).replace(/\/$/, '');
+  return current === target;
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDesc} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={withBase('favicon.svg')} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDesc} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="site-header__brand" href={withBase('/')}>Mixwell</a>
+        <nav class="site-nav" aria-label="Primary">
+          {
+            nav.map((item) => (
+              <a
+                href={withBase(item.href)}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p class="muted">
+          {siteConfig.venue.full} {siteConfig.venue.volume}({siteConfig.venue.number}),
+          Article {siteConfig.venue.articleno}. {siteConfig.venue.published}.
+        </p>
+        <p class="muted">
+          DOI:
+          <a href={siteConfig.paperUrl}>{siteConfig.doi}</a>
+        </p>
+      </div>
+    </footer>
+
+    <style>
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: saturate(1.2) blur(8px);
+        border-bottom: 1px solid var(--border);
+      }
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-6);
+        min-height: 3.5rem;
+        flex-wrap: wrap;
+      }
+      .site-header__brand {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        font-size: var(--step-1);
+        color: var(--text);
+      }
+      .site-header__brand:hover {
+        text-decoration: none;
+        color: var(--accent);
+      }
+      .site-nav {
+        display: flex;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+      }
+      .site-nav a {
+        color: var(--text-muted);
+        font-size: var(--step--1);
+        font-weight: 550;
+        padding: var(--space-1) 0;
+      }
+      .site-nav a:hover {
+        color: var(--text);
+        text-decoration: none;
+      }
+      .site-nav a[aria-current='page'] {
+        color: var(--text);
+        border-bottom: 2px solid var(--accent);
+      }
+      .site-footer {
+        border-top: 1px solid var(--border);
+        margin-top: var(--space-16);
+        padding-block: var(--space-8);
+        font-size: var(--step--1);
+      }
+      .site-footer p {
+        margin: 0 0 var(--space-1);
+      }
+    </style>
+  </body>
+</html>

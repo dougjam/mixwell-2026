@@ -1,0 +1,187 @@
+---
+import Base from '../layouts/Base.astro';
+import AuthorBlock from '../components/AuthorBlock.astro';
+import Badges from '../components/Badges.astro';
+import PrimaryLinks from '../components/PrimaryLinks.astro';
+import BibtexBlock from '../components/BibtexBlock.astro';
+import YouTubeEmbed from '../components/YouTubeEmbed.astro';
+import CardGrid from '../components/CardGrid.astro';
+import Card from '../components/Card.astro';
+import { withBase } from '../lib/paths';
+import { siteConfig } from '../lib/data';
+
+const c = siteConfig;
+
+// Landing card grid: the site's main sections.
+const sections = [
+  {
+    href: '/demos/webgpu',
+    title: 'WebGPU Demo',
+    blurb: 'Progressive, resolution-independent mixing in your browser (WebGPU).',
+    thumbnail: 'thumbs/webgpu-demo.webp',
+  },
+  {
+    href: '/demos/shaders',
+    title: 'Shader Gallery',
+    blurb: 'Shadertoy examples of Mixwell brushes and Reverse-Drift Functions.',
+    thumbnail: 'thumbs/shader-brushbird.webp',
+  },
+  {
+    href: '/code',
+    title: 'Code & Libraries',
+    blurb: 'GLSL, HLSL, OSL, and OpenCL implementations you can drop into your pipeline.',
+    thumbnail: 'thumbs/code-mixwell.svg',
+  },
+  // Explainers hidden for now (no content yet). Re-add when an article exists;
+  // the /explainers page and seed article remain in place.
+];
+
+---
+
+<Base>
+  <div class="container">
+    <!-- Title + authors -->
+    <header class="paper-head">
+      <p class="eyebrow">{c.venue.full} · {c.venue.published}</p>
+      <h1>{c.title}</h1>
+      <AuthorBlock authors={c.authors} />
+      <Badges badges={c.badges} />
+    </header>
+
+    <!-- Teaser hero -->
+    <section class="hero section" aria-label="Teaser">
+      {
+        c.teaser.teaserVideoId ? (
+          <YouTubeEmbed id={c.teaser.teaserVideoId} title="Mixwell teaser" />
+        ) : (
+          <img
+            class="hero__img"
+            src={withBase(c.teaser.image)}
+            alt={c.teaser.alt}
+            width="1920"
+            height="850"
+          />
+        )
+      }
+    </section>
+
+    <!-- Abstract -->
+    <section class="section abstract" aria-labelledby="abstract-h">
+      <h2 id="abstract-h">Abstract</h2>
+      <p class="abstract__text">{c.abstract}</p>
+    </section>
+
+    <!-- Primary links -->
+    <section aria-label="Primary links">
+      <PrimaryLinks config={c} />
+      <div id="bibtex" class="bibtex-anchor">
+        <BibtexBlock bibtex={c.bibtex} />
+      </div>
+    </section>
+
+    <!-- Section cards -->
+    <section class="section" aria-labelledby="explore-h">
+      <h2 id="explore-h">Explore</h2>
+      <CardGrid>
+        {
+          sections.map((s) => (
+            <Card href={s.href} title={s.title} blurb={s.blurb} thumbnail={s.thumbnail} />
+          ))
+        }
+      </CardGrid>
+    </section>
+
+    {/* Gallery preview hidden for now (no images yet). The /gallery page and
+        gallery.yaml data remain in place; re-add this section and the nav link
+        in Base.astro to bring it back. */}
+
+    <!-- News / changelog -->
+    {
+      c.news.length > 0 && (
+        <section class="section" aria-labelledby="news-h">
+          <h2 id="news-h">News</h2>
+          <ul class="news">
+            {c.news.map((n) => (
+              <li class="news__item">
+                <time class="news__date" datetime={n.date}>
+                  {n.date}
+                </time>
+                <span class="news__text">
+                  {n.url ? (
+                    <a href={n.url} target="_blank" rel="noopener noreferrer">
+                      {n.text}
+                    </a>
+                  ) : (
+                    n.text
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .hero {
+    margin-top: var(--space-8);
+  }
+  .hero__img {
+    width: 100%;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    aspect-ratio: 1920 / 850;
+    object-fit: cover;
+  }
+  .paper-head {
+    margin-top: var(--space-8);
+  }
+  .paper-head h1 {
+    text-wrap: balance;
+  }
+
+  /* Abstract: a single justified column spanning the full content width. */
+  .abstract__text {
+    margin: 0;
+    text-align: justify;
+    hyphens: auto;
+  }
+  .bibtex-anchor {
+    scroll-margin-top: 5rem;
+    margin-top: var(--space-4);
+  }
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+  .section-head h2 {
+    margin: 0;
+  }
+  .news {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid var(--border);
+  }
+  .news__item {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .news__date {
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--step--1);
+    min-width: 6rem;
+  }
+  .news__text {
+    flex: 1;
+  }
+</style>

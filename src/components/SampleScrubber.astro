@@ -1,0 +1,123 @@
+---
+import { withBase } from '../lib/paths';
+
+// Segmented control that crossfades between web-optimized frames — e.g. showing
+// convergence across sample counts (1, 4, 16, 256 spp). Reusable in explainers
+// and on the landing page.
+interface Frame {
+  label: string;
+  image: string; // site-relative path under public/
+  alt?: string;
+}
+interface Props {
+  frames: Frame[];
+  caption?: string;
+  aspect?: string;
+  initial?: number; // index of the initially selected frame
+}
+const { frames, caption, aspect = '16 / 10', initial = 0 } = Astro.props;
+---
+
+<figure class="scrubber" data-initial={initial}>
+  <div class="scrubber__stage" style={`aspect-ratio:${aspect}`}>
+    {
+      frames.map((f, i) => (
+        <img
+          class="scrubber__frame"
+          src={withBase(f.image)}
+          alt={f.alt ?? `${f.label} frame`}
+          data-index={i}
+          loading="lazy"
+          style={`opacity:${i === initial ? 1 : 0}`}
+        />
+      ))
+    }
+  </div>
+  <div class="scrubber__controls" role="tablist" aria-label="Sample count">
+    {
+      frames.map((f, i) => (
+        <button
+          class="scrubber__seg"
+          type="button"
+          role="tab"
+          aria-selected={i === initial ? 'true' : 'false'}
+          data-index={i}
+        >
+          {f.label}
+        </button>
+      ))
+    }
+  </div>
+  {caption && <figcaption class="muted">{caption}</figcaption>}
+</figure>
+
+<style>
+  .scrubber {
+    margin: var(--space-6) 0;
+  }
+  .scrubber__stage {
+    position: relative;
+    width: 100%;
+    background: var(--bg-subtle);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .scrubber__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.35s ease;
+  }
+  .scrubber__controls {
+    display: inline-flex;
+    margin-top: var(--space-3);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .scrubber__seg {
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--step--1);
+    font-weight: 600;
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+  }
+  .scrubber__seg:last-child {
+    border-right: 0;
+  }
+  .scrubber__seg[aria-selected='true'] {
+    background: var(--accent);
+    color: var(--accent-contrast);
+  }
+  figcaption {
+    margin-top: var(--space-2);
+    font-size: var(--step--1);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.scrubber').forEach((root) => {
+    const frames = root.querySelectorAll<HTMLImageElement>('.scrubber__frame');
+    const segs = root.querySelectorAll<HTMLButtonElement>('.scrubber__seg');
+
+    function select(index: number) {
+      frames.forEach((f) => {
+        f.style.opacity = Number(f.dataset.index) === index ? '1' : '0';
+      });
+      segs.forEach((s) => {
+        s.setAttribute('aria-selected', Number(s.dataset.index) === index ? 'true' : 'false');
+      });
+    }
+
+    segs.forEach((seg) => {
+      seg.addEventListener('click', () => select(Number(seg.dataset.index)));
+    });
+  });
+</script>

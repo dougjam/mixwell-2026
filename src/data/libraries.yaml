@@ -1,0 +1,86 @@
+# =============================================================================
+# Code libraries
+# =============================================================================
+# One entry per library shown on the /code page. `repoFolder` is a path RELATIVE
+# to the code repository root (config `codeRepoUrl`); it is joined automatically,
+# so if the repo is renamed you only change the URL in site.config.yaml.
+#
+# `snippet` is a short usage example shown with syntax highlighting and a copy
+# button. `language` is the highlighter grammar (e.g. glsl, hlsl, c, cpp).
+# `download` is an optional direct download URL (leave null if none).
+#
+# NOTE: the exact repo folder paths below are best-effort. Verify them against
+# the published repository layout and correct as needed.
+# =============================================================================
+
+libraries:
+  - id: glsl
+    name: "Mixwell GLSL"
+    languageLabel: "GLSL"
+    language: "glsl"
+    description: "Real-time GLSL implementation of the Mixwell brushes and Reverse-Drift Functions for WebGL/OpenGL fragment shaders."
+    repoFolder: "GLSL"
+    download: null
+    snippet: |
+      // Evaluate the Reverse-Drift Function for one tine and sample the source.
+      #include "mixwell.glsl"
+
+      vec2 uv = rdfTine(fragUV, tineCenter, tineRadius, driftAmount);
+      vec3 color = texture(uSource, uv).rgb;
+
+  - id: hlsl-mixwell
+    name: "Mixwell HLSL"
+    languageLabel: "HLSL"
+    language: "hlsl"
+    description: "Full HLSL port of Mixwell for DirectX / real-time engines."
+    repoFolder: "HLSL/Mixwell"
+    download: null
+    snippet: |
+      // Chain two RDFs, then sample.
+      #include "Mixwell.hlsl"
+
+      float2 uv = RdfTine(fragUV, tineA, radiusA, driftA);
+      uv        = RdfTine(uv,     tineB, radiusB, driftB);
+      float3 color = Source.Sample(LinearClamp, uv).rgb;
+
+  - id: hlsl-mixwelllite
+    name: "MixwellLite HLSL"
+    languageLabel: "HLSL"
+    language: "hlsl"
+    description: "A lighter-weight HLSL variant with a reduced feature set for constrained shading budgets."
+    repoFolder: "HLSL/MixwellLite"
+    download: null
+    snippet: |
+      // MixwellLite exposes a single compact brush entry point.
+      #include "MixwellLite.hlsl"
+
+      float2 uv = MixwellLiteBrush(fragUV, tineCenter, tineRadius, driftAmount);
+      float3 color = Source.Sample(LinearClamp, uv).rgb;
+
+  - id: osl
+    name: "Mixwell OSL (Houdini / Redshift)"
+    languageLabel: "OSL"
+    language: "c"
+    description: "Open Shading Language implementation for production integration in Houdini and Redshift."
+    repoFolder: "OSL"
+    download: null
+    snippet: |
+      // OSL shader node: displace the lookup coordinate with an RDF, then read.
+      #include "mixwell.osl"
+
+      point p = rdf_tine(P, tine_center, tine_radius, drift_amount);
+      Cout = texture(source_map, p[0], p[1]);
+
+  - id: opencl
+    name: "Mixwell OpenCL (Houdini Copernicus)"
+    languageLabel: "OpenCL"
+    language: "c"
+    description: "OpenCL kernels for GPU evaluation inside Houdini's Copernicus (COPs) image workflow."
+    repoFolder: "OpenCL"
+    download: null
+    snippet: |
+      // Copernicus kernel: evaluate the RDF per pixel and gather the source.
+      #include "mixwell.cl"
+
+      float2 uv = rdf_tine(frag_uv, tine_center, tine_radius, drift_amount);
+      float4 color = read_imagef(source, sampler, uv);

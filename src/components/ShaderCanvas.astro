@@ -1,0 +1,221 @@
+---
+// Inline live fragment-shader canvas (iquilezles.org style).
+//
+// Provide `fragment` as a Shadertoy-style body that defines:
+//     void mainImage(out vec4 fragColor, in vec2 fragCoord) { ... }
+// The harness supplies `iResolution` (vec3) and `iTime` (float) uniforms.
+//
+// Rendering is capped to a device-pixel ratio for performance, and animation
+// pauses when the canvas scrolls out of view. Play/pause is user-controllable.
+interface Props {
+  fragment: string;
+  caption?: string;
+  aspect?: string; // e.g. "16 / 9"
+  maxDpr?: number;
+}
+const { fragment, caption, aspect = '16 / 9', maxDpr = 1.5 } = Astro.props;
+---
+
+<figure class="shader-canvas" data-max-dpr={maxDpr}>
+  <div class="shader-canvas__stage" style={`aspect-ratio:${aspect}`}>
+    <canvas class="shader-canvas__gl"></canvas>
+    <button class="shader-canvas__toggle" type="button" aria-label="Pause" data-toggle>
+      <span data-play-icon hidden>▶</span>
+      <span data-pause-icon>❚❚</span>
+    </button>
+    <p class="shader-canvas__error" data-error hidden></p>
+  </div>
+  <script type="x-shader/x-fragment" data-fragment set:html={fragment}></script>
+  {caption && <figcaption class="muted">{caption}</figcaption>}
+</figure>
+
+<style>
+  .shader-canvas {
+    margin: var(--space-6) 0;
+  }
+  .shader-canvas__stage {
+    position: relative;
+    width: 100%;
+    background: #000;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .shader-canvas__gl {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .shader-canvas__toggle {
+    position: absolute;
+    bottom: var(--space-2);
+    right: var(--space-2);
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, #000 55%, transparent);
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: grid;
+    place-items: center;
+  }
+  .shader-canvas__error {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: var(--space-4);
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: #ffb4b4;
+    background: #1a0d0d;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    overflow: auto;
+  }
+  figcaption {
+    margin-top: var(--space-2);
+    font-size: var(--step--1);
+  }
+</style>
+
+<script>
+  const VERTEX = `#version 300 es
+  in vec2 aPos;
+  void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+  function harness(body: string): string {
+    return `#version 300 es
+    precision highp float;
+    uniform vec3 iResolution;
+    uniform float iTime;
+    out vec4 outColor;
+    ${body}
+    void main() {
+      vec4 c = vec4(0.0);
+      mainImage(c, gl_FragCoord.xy);
+      outColor = c;
+    }`;
+  }
+
+  function initCanvas(root: HTMLElement) {
+    const canvas = root.querySelector<HTMLCanvasElement>('.shader-canvas__gl');
+    const stage = root.querySelector<HTMLElement>('.shader-canvas__stage');
+    const errorEl = root.querySelector<HTMLElement>('[data-error]');
+    const toggle = root.querySelector<HTMLButtonElement>('[data-toggle]');
+    const playIcon = root.querySelector<HTMLElement>('[data-play-icon]');
+    const pauseIcon = root.querySelector<HTMLElement>('[data-pause-icon]');
+    const src = root.querySelector<HTMLElement>('[data-fragment]')?.textContent ?? '';
+    if (!canvas || !stage) return;
+
+    const gl = canvas.getContext('webgl2', { antialias: false, alpha: false });
+    if (!gl) {
+      showError('WebGL2 is not available in this browser.');
+      return;
+    }
+
+    function showError(msg: string) {
+      if (!errorEl) return;
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+
+    function compile(type: number, source: string): WebGLShader | null {
+      const sh = gl!.createShader(type)!;
+      gl!.shaderSource(sh, source);
+      gl!.compileShader(sh);
+      if (!gl!.getShaderParameter(sh, gl!.COMPILE_STATUS)) {
+        showError('Shader error:\n' + (gl!.getShaderInfoLog(sh) ?? ''));
+        gl!.deleteShader(sh);
+        return null;
+      }
+      return sh;
+    }
+
+    const vs = compile(gl.VERTEX_SHADER, VERTEX);
+    const fs = compile(gl.FRAGMENT_SHADER, harness(src));
+    if (!vs || !fs) return;
+
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, vs);
+    gl.attachShader(prog, fs);
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      showError('Link error:\n' + (gl.getProgramInfoLog(prog) ?? ''));
+      return;
+    }
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    // Full-screen triangle.
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, 'iResolution');
+    const uTime = gl.getUniformLocation(prog, 'iTime');
+
+    const maxDpr = parseFloat(root.dataset.maxDpr ?? '1.5');
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
+      const w = Math.max(1, Math.floor(stage!.clientWidth * dpr));
+      const h = Math.max(1, Math.floor(stage!.clientHeight * dpr));
+      if (canvas!.width !== w || canvas!.height !== h) {
+        canvas!.width = w;
+        canvas!.height = h;
+      }
+      gl!.viewport(0, 0, canvas!.width, canvas!.height);
+    }
+
+    let running = true;
+    let visible = true;
+    let raf = 0;
+    const start = performance.now();
+
+    function renderFrame(now: number) {
+      resize();
+      gl!.uniform3f(uRes, canvas!.width, canvas!.height, 1);
+      gl!.uniform1f(uTime, (now - start) / 1000);
+      gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+    }
+    function loop(now: number) {
+      raf = 0;
+      if (!running || !visible) return;
+      renderFrame(now);
+      raf = requestAnimationFrame(loop);
+    }
+    function play() {
+      if (raf === 0 && running && visible) raf = requestAnimationFrame(loop);
+    }
+
+    toggle?.addEventListener('click', () => {
+      running = !running;
+      if (playIcon) playIcon.hidden = running;
+      if (pauseIcon) pauseIcon.hidden = !running;
+      toggle.setAttribute('aria-label', running ? 'Pause' : 'Play');
+      if (running) play();
+    });
+
+    // Pause the animation loop when off-screen to save the GPU.
+    const io = new IntersectionObserver(
+      (entries) => {
+        visible = entries[0]?.isIntersecting ?? false;
+        if (visible) play();
+      },
+      { threshold: 0.01 }
+    );
+    io.observe(stage);
+
+    // Always draw at least one frame immediately, so a still image shows even
+    // before the observer confirms visibility (and in environments without a
+    // scrolling viewport). The loop then animates while on-screen.
+    renderFrame(performance.now());
+    play();
+  }
+
+  document.querySelectorAll<HTMLElement>('.shader-canvas').forEach(initCanvas);
+</script>

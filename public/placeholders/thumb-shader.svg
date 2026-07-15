@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Shader placeholder">
+  <defs><radialGradient id="g" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#241a3a"/><stop offset="1" stop-color="#0e1220"/></radialGradient></defs>
+  <rect width="640" height="400" fill="url(#g)"/>
+  <g fill="none" stroke-width="1.5" opacity="0.7">
+    <circle cx="320" cy="200" r="40" stroke="#A6CE39"/>
+    <circle cx="320" cy="200" r="80" stroke="#8f7bff"/>
+    <circle cx="320" cy="200" r="120" stroke="#6b93ff" opacity="0.6"/>
+    <circle cx="320" cy="200" r="160" stroke="#6b93ff" opacity="0.35"/>
+  </g>
+  <text x="30" y="50" fill="#e6e9ef" font-family="system-ui,sans-serif" font-size="24" font-weight="700">Shader</text>
+  <text x="30" y="78" fill="#9aa4b2" font-family="system-ui,sans-serif" font-size="15">placeholder still</text>
+</svg>

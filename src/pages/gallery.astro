@@ -1,0 +1,93 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase, isExternal } from '../lib/paths';
+import { gallery } from '../lib/data';
+---
+
+<Base title="Gallery" description="Poster and supplemental images from the Mixwell project.">
+  <div class="container">
+    <header class="section">
+      <p class="eyebrow">Gallery</p>
+      <h1>Gallery</h1>
+      <p class="prose muted">
+        Poster and supplemental stills. Click an image to open a larger web-resolution version;
+        full-resolution masters, where available, are linked externally.
+      </p>
+    </header>
+
+    <section class="section" aria-label="Images">
+      {
+        gallery.length > 0 ? (
+          <div class="gallery-grid">
+            {gallery.map((g) => (
+              <figure class="gitem">
+                <a
+                  class="gitem__link"
+                  href={withBase(g.full)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={withBase(g.thumbnail)} alt={g.caption} loading="lazy" />
+                </a>
+                <figcaption class="gitem__cap">
+                  <span>{g.caption}</span>
+                  {g.master && (
+                    <a
+                      class="gitem__master"
+                      href={g.master}
+                      target={isExternal(g.master) ? '_blank' : undefined}
+                      rel={isExternal(g.master) ? 'noopener noreferrer' : undefined}
+                    >
+                      Full-res ↗
+                    </a>
+                  )}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        ) : (
+          <p class="muted">Gallery images will appear here soon.</p>
+        )
+      }
+    </section>
+  </div>
+</Base>
+
+<style>
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    gap: var(--space-6);
+  }
+  .gitem {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .gitem__link {
+    display: block;
+    aspect-ratio: 16 / 10;
+    background: var(--bg-subtle);
+  }
+  .gitem__link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .gitem__cap {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--step--1);
+    color: var(--text-muted);
+  }
+  .gitem__master {
+    white-space: nowrap;
+    font-weight: 600;
+  }
+</style>

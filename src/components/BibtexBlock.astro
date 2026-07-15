@@ -1,0 +1,68 @@
+---
+// Reproduces the stored BibTeX string EXACTLY. Never templated or regenerated
+// from individual fields.
+interface Props {
+  bibtex: string;
+}
+const { bibtex } = Astro.props;
+---
+
+<details class="bibtex">
+  <summary>BibTeX</summary>
+  <div class="bibtex__inner">
+    <button class="btn bibtex__copy" type="button" data-copy-bibtex>Copy</button>
+    <pre class="bibtex__code"><code>{bibtex}</code></pre>
+  </div>
+</details>
+
+<style>
+  .bibtex {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .bibtex > summary {
+    cursor: pointer;
+    padding: var(--space-3) var(--space-4);
+    font-weight: 600;
+    user-select: none;
+  }
+  .bibtex[open] > summary {
+    border-bottom: 1px solid var(--border);
+  }
+  .bibtex__inner {
+    position: relative;
+  }
+  .bibtex__copy {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: 1;
+  }
+  .bibtex__code {
+    margin: 0;
+    padding: var(--space-4);
+    overflow-x: auto;
+    background: var(--code-bg);
+    color: #e6edf3;
+    border-radius: 0 0 var(--radius) var(--radius);
+    font-size: var(--step--1);
+    line-height: 1.55;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-bibtex]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const code = btn.parentElement?.querySelector('code')?.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(code);
+        const prev = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(() => (btn.textContent = prev), 1500);
+      } catch {
+        btn.textContent = 'Copy failed';
+      }
+    });
+  });
+</script>

@@ -1,0 +1,98 @@
+---
+title: "Reverse-Drift Functions: an introduction"
+blurb: "What RDFs are, why they compose like SDFs, and how to chain them in a shader."
+thumbnail: "placeholders/thumb-explainers.svg"
+order: 1
+---
+
+import ShaderCanvas from '../../components/ShaderCanvas.astro';
+import SampleScrubber from '../../components/SampleScrubber.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import Math from '../../components/Math.astro';
+
+{/* TODO: Replace this intro with the real explainer prose. */}
+> **TODO:** This is a placeholder article that demonstrates the full explainer
+> pipeline — inline math, a live shader canvas, a sample scrubber, and copyable
+> code. Replace this prose with the actual introduction to Reverse-Drift
+> Functions.
+
+A **Reverse-Drift Function** (RDF) is a displacement field that encodes how a
+cylindrical tine inserts into, moves through, and withdraws from a 2D fluid.
+Given an output coordinate, an RDF answers a single question: *where did this
+material come from?* Because the answer is evaluated independently per sample,
+RDFs behave a lot like signed distance fields — they **compose**, and can be
+**chained** in a shader without ever resampling an intermediate texture.
+
+## One equation
+
+For a tine of radius <Math tex="a" /> centered at the origin, the idealized
+potential-flow displacement at a point <Math tex="\mathbf{x}" /> (with
+<Math tex="r = \lVert \mathbf{x} \rVert" />) can be written schematically as:
+
+<Math
+  display
+  tex={String.raw`\mathbf{d}(\mathbf{x}) = \left(1 - \frac{a^2}{r^2}\right)\mathbf{x} + \frac{a^2}{r^2}\big(2(\hat{\mathbf{u}}\cdot\hat{\mathbf{x}})\,\hat{\mathbf{x}} - \hat{\mathbf{u}}\big)s`}
+/>
+
+{/* TODO: Replace with the paper's actual RDF formulation and symbol definitions. */}
+where <Math tex="\hat{\mathbf{u}}" /> is the stroke direction and
+<Math tex="s" /> the drift magnitude. The exact form, regularization, and the
+finite-stroke variant are developed in the paper.
+
+## A live canvas
+
+The canvas below is a placeholder animation — swap in a real RDF evaluation to
+show the field in motion. It compiles on the client only, and pauses when it
+scrolls out of view.
+
+<ShaderCanvas
+  caption="Placeholder shader — replace the fragment with a real RDF evaluation."
+  fragment={`
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+  vec2 uv = (2.0 * fragCoord - iResolution.xy) / iResolution.y;
+  float t = iTime * 0.35;
+  // Swirl around a moving "tine" center.
+  vec2 c = 0.55 * vec2(cos(t), sin(t * 0.8));
+  vec2 d = uv - c;
+  float r = length(d) + 1e-3;
+  float ang = atan(d.y, d.x);
+  float swirl = sin(8.0 * ang + 3.0 / r - iTime * 1.5);
+  float ring = smoothstep(0.02, 0.0, abs(r - 0.28));
+  vec3 col = mix(vec3(0.05, 0.08, 0.15), vec3(0.42, 0.66, 0.30), 0.5 + 0.5 * swirl);
+  col = mix(col, vec3(1.0), ring);
+  fragColor = vec4(col, 1.0);
+}
+`}
+/>
+
+## Progressive convergence
+
+Because operations are evaluated per sample with no global solve, images refine
+progressively as samples accumulate. Drag through the sample counts:
+
+<SampleScrubber
+  caption="Placeholder frames — replace with real renders at each sample count."
+  frames={[
+    { label: '1 spp', image: 'placeholders/spp-1.svg' },
+    { label: '4 spp', image: 'placeholders/spp-4.svg' },
+    { label: '16 spp', image: 'placeholders/spp-16.svg' },
+    { label: '256 spp', image: 'placeholders/spp-256.svg' },
+  ]}
+/>
+
+## Chaining RDFs
+
+RDFs compose by function composition — feed the output coordinate of one into the
+next, then sample the source once at the end:
+
+<CodeBlock
+  lang="glsl"
+  code={`// Chain two RDFs, then sample the source exactly once (no intermediate blur).
+vec2 uv = fragUV;
+uv = rdfTine(uv, tineA, radiusA, driftA);
+uv = rdfTine(uv, tineB, radiusB, driftB);
+vec3 color = texture(uSource, uv).rgb;`}
+/>
+
+{/* TODO: Add the rest of the explainer — regularization, finite strokes,
+    periodicity-exploiting composition, and references. */}

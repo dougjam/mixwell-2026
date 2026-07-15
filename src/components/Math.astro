@@ -1,0 +1,36 @@
+---
+import katex from 'katex';
+
+// Renders KaTeX math to HTML at build time. Pass the LaTeX as a string prop so
+// its braces never reach the MDX/JSX expression parser.
+//
+//   Inline:  <Math tex="r = \lVert \mathbf{x} \rVert" />
+//   Display: <Math display tex={String.raw`\frac{a^2}{r^2}`} />
+//
+// The KaTeX stylesheet is imported once in Base.astro.
+interface Props {
+  tex: string;
+  display?: boolean;
+}
+const { tex, display = false } = Astro.props;
+const html = katex.renderToString(tex, {
+  displayMode: display,
+  throwOnError: false,
+});
+---
+
+{
+  display ? (
+    <div class="math-display" set:html={html} />
+  ) : (
+    <span class="math-inline" set:html={html} />
+  )
+}
+
+<style>
+  .math-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: var(--space-2);
+  }
+</style>

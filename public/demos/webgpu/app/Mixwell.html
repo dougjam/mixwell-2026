@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixwell</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript">
+        var Module = {
+            canvas: (function () {
+                var canvas = document.getElementById('canvas');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                return canvas;
+            })(),
+
+            onRuntimeInitialized: function () {
+                console.log("Emscripten runtime initialized.");
+            },
+
+            onExit: function (code) {
+                console.log("Application exited with code: " + code);
+            },
+
+            print: function (text) { console.log(text); },
+            printErr: function (text) { console.error(text); }
+        };
+
+        async function initWebGPU() {
+            if (!navigator.gpu) {
+                console.error("WebGPU is not supported in this browser.");
+                return;
+            }
+
+            const adapter = await navigator.gpu.requestAdapter();
+            if (!adapter) {
+                console.error("Failed to get a WebGPU adapter.");
+                return;
+            }
+
+            const requiredFeatures = [
+                "bgra8unorm-storage",
+                "float32-filterable",
+                "unorm16-texture-formats",
+                "snorm16-texture-formats",
+            ];
+
+            const device = await adapter.requestDevice({
+                requiredFeatures: requiredFeatures.filter(feature => adapter.features.has(feature)),
+            });
+
+            if (!device) {
+                console.error("Failed to get a WebGPU device.");
+                return;
+            }
+
+            device.lost.then((info) => {
+                console.error("WebGPU device lost:", info.message);
+            });
+
+            // This is what Emscripten's _emscripten_webgpu_get_device() reads from.
+            Module.preinitializedWebGPUDevice = device;
+
+            // Now it's safe to load the Emscripten module.
+            const script = document.createElement('script');
+            script.src = 'Mixwell.js';
+            document.body.appendChild(script);
+        }
+
+        initWebGPU();
+
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# =============================================================================
+# Gallery — poster and supplemental images
+# =============================================================================
+# `thumbnail` is a small web-optimized image; `full` is a larger (still
+# web-optimized, NOT master-resolution) image opened on click. `master` is an
+# optional external link (Google Drive / Dropbox) to the full-resolution file —
+# never commit masters to the repo.
+# =============================================================================
+
+gallery:
+  - id: teaser-still
+    caption: "Progressive mixing with sharp brushes (teaser)."
+    thumbnail: "placeholders/gallery-1.svg"   # TODO: real web-optimized thumbnail
+    full: "placeholders/gallery-1.svg"         # TODO: real web-res image
+    master: null                               # TODO: external link to full-res master
+
+  - id: rdf-composition
+    caption: "Chained Reverse-Drift Functions avoiding intermediate texture blur."
+    thumbnail: "placeholders/gallery-2.svg"   # TODO: real web-optimized thumbnail
+    full: "placeholders/gallery-2.svg"         # TODO: real web-res image
+    master: null
+
+  - id: houdini-integration
+    caption: "Production integration in Houdini (OpenCL / OSL)."
+    thumbnail: "placeholders/gallery-3.svg"   # TODO: real web-optimized thumbnail
+    full: "placeholders/gallery-3.svg"         # TODO: real web-res image
+    master: null

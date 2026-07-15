@@ -1,0 +1,95 @@
+---
+// Lazy YouTube facade: shows a thumbnail + play button and only injects the
+// iframe on click, keeping pages fast. Zero third-party JS until the user opts in.
+interface Props {
+  id: string;
+  title?: string;
+  thumbnail?: string; // optional override; defaults to YouTube's hqdefault
+}
+const { id, title = 'Video', thumbnail } = Astro.props;
+const poster = thumbnail ?? `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+---
+
+<div class="yt" data-yt-id={id} data-yt-title={title}>
+  <button class="yt__btn" type="button" aria-label={`Play: ${title}`}>
+    <img class="yt__poster" src={poster} alt="" loading="lazy" />
+    <span class="yt__play" aria-hidden="true">
+      <svg width="68" height="48" viewBox="0 0 68 48">
+        <path
+          d="M66.5 7.7a8 8 0 00-5.6-5.7C56 .6 34 .6 34 .6s-22 0-26.9 1.4A8 8 0 001.5 7.7 83 83 0 000 24a83 83 0 001.5 16.3 8 8 0 005.6 5.7C12 47.4 34 47.4 34 47.4s22 0 26.9-1.4a8 8 0 005.6-5.7A83 83 0 0068 24a83 83 0 00-1.5-16.3z"
+          fill="#f00"></path>
+        <path d="M45 24L27 14v20z" fill="#fff"></path>
+      </svg>
+    </span>
+  </button>
+</div>
+
+<style>
+  .yt {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .yt__btn {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .yt__poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.92;
+    transition: opacity 0.15s ease;
+  }
+  .yt__btn:hover .yt__poster {
+    opacity: 1;
+  }
+  .yt__play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  }
+  .yt__play svg {
+    opacity: 0.85;
+    transition: opacity 0.15s ease;
+  }
+  .yt__btn:hover .yt__play svg {
+    opacity: 1;
+  }
+  .yt :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.yt').forEach((el) => {
+    const btn = el.querySelector('.yt__btn');
+    btn?.addEventListener('click', () => {
+      const id = el.dataset.ytId;
+      const title = el.dataset.ytTitle ?? 'Video';
+      if (!id) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+      iframe.title = title;
+      iframe.allow =
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      el.replaceChildren(iframe);
+    });
+  });
+</script>

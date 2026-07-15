@@ -1,0 +1,29 @@
+---
+interface Props {
+  badges: string[];
+}
+const { badges } = Astro.props;
+---
+
+{
+  badges.length > 0 && (
+    <ul class="badges" aria-label="Publication badges">
+      {badges.map((b) => (
+        <li>
+          <span class="badge">{b}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .badges {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: 0;
+    margin: var(--space-4) 0;
+  }
+</style>

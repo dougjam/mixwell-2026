@@ -1,0 +1,72 @@
+---
+import Base from '../../layouts/Base.astro';
+import { withBase } from '../../lib/paths';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('explainers', ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Base title={entry.data.title} description={entry.data.blurb}>
+  <div class="container">
+    <article class="article">
+      <p class="eyebrow">
+        <a href={withBase('/explainers')}>Explainers</a>
+      </p>
+      <h1>{entry.data.title}</h1>
+      <p class="article__blurb muted">{entry.data.blurb}</p>
+      <div class="article__body prose">
+        <Content />
+      </div>
+    </article>
+  </div>
+</Base>
+
+<style>
+  .article {
+    margin-block: var(--space-8);
+  }
+  .article__blurb {
+    font-size: var(--step-1);
+    max-width: var(--prose-width);
+  }
+  .article__body {
+    margin-top: var(--space-8);
+    max-width: 48rem; /* readable measure for long-form reading */
+  }
+  .article__body :global(h2) {
+    margin-top: var(--space-12);
+  }
+  .article__body :global(h3) {
+    margin-top: var(--space-8);
+  }
+  .article__body :global(p),
+  .article__body :global(li) {
+    line-height: 1.7;
+  }
+  .article__body :global(pre) {
+    padding: var(--space-4);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    border: 1px solid var(--border);
+  }
+  .article__body :global(:not(pre) > code) {
+    background: var(--bg-subtle);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .article__body :global(.katex-display) {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: var(--space-2);
+  }
+</style>

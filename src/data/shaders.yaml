@@ -1,0 +1,29 @@
+# =============================================================================
+# Shadertoy gallery
+# =============================================================================
+# Each entry renders as a card. Clicking the card opens `viewUrl` in a new tab.
+# The optional "Run inline" affordance lazily injects a single Shadertoy iframe
+# only after the user clicks it, so nothing compiles on page load.
+#
+# `embedUrl` is optional; if omitted it is derived from `viewUrl` by swapping
+# `/view/` for `/embed/`. Fill in real IDs/URLs as shaders are published.
+# =============================================================================
+
+shaders:
+  - id: rdf-basic
+    title: "RDF: single tine insertion"
+    explanation: "A cusped Reverse-Drift Function from one cylindrical tine."
+    thumbnail: "placeholders/thumb-shader.svg"   # TODO: real still
+    viewUrl: "https://www.shadertoy.com/view/TODO000"   # TODO: Shadertoy view URL
+
+  - id: rdf-chain
+    title: "Chained RDFs"
+    explanation: "Composing several RDFs in a shader without intermediate blur."
+    thumbnail: "placeholders/thumb-shader.svg"   # TODO: real still
+    viewUrl: "https://www.shadertoy.com/view/TODO001"   # TODO: Shadertoy view URL
+
+  - id: drift-stroke
+    title: "Finite drift stroke"
+    explanation: "Particle drift along a finite stroke via Maxwell's formulation."
+    thumbnail: "placeholders/thumb-shader.svg"   # TODO: real still
+    viewUrl: "https://www.shadertoy.com/view/TODO002"   # TODO: Shadertoy view URL

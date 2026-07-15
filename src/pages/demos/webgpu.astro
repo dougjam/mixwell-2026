@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import WebGPUMount from '../../components/WebGPUMount.astro';
+import YouTubeEmbed from '../../components/YouTubeEmbed.astro';
+import { siteConfig } from '../../lib/data';
+import { withBase } from '../../lib/paths';
+
+const c = siteConfig;
+const fallbackVideoId = c.links.supplementalVideoId; // used when WebGPU is unavailable
+---
+
+<Base title="WebGPU Mixwell Demo" description="Progressive, resolution-independent mixing in your browser.">
+  <div class="container">
+    <header class="section">
+      <p class="eyebrow">Interactive demo</p>
+      <h1>WebGPU Mixwell Demo</h1>
+      <p class="prose muted">
+        Explore progressive, resolution-independent physics-based mixing directly in your
+        browser. Operations are evaluated independently per sample, with no global solves, grids,
+        or intermediate texture resampling. Use the demo's 
+        built-in <strong>presets</strong> (exposed inside the demo UI) 
+        to jump between representative brush and RDF setups.
+      </p>
+    </header>
+
+    <section class="section" aria-label="Demo">
+      <WebGPUMount poster="thumbs/webgpu-demo.webp" fallbackImage={c.teaser.image}>
+        {
+          fallbackVideoId ? (
+            <YouTubeEmbed slot="fallback" id={fallbackVideoId} title="Recorded Mixwell demo" />
+          ) : (
+            <p slot="fallback" class="muted">
+              A recorded walkthrough video will be linked here once available.
+            </p>
+          )
+        }
+      </WebGPUMount>
+    </section>
+
+    <section class="section prose">
+      <h2>About this demo</h2>
+      <p>
+        A live Mixwell sandbox: apply combing and brush passes to an image and watch the
+        colors mix in real time, at any zoom level. Tune each pass (comb radius, spacing,
+        direction, and samples per frame) from the on-screen controls, or start from a preset.
+      </p>
+      <p class="muted">
+        Source shader libraries (GLSL, HLSL, OSL, OpenCL) are available on 
+        the <a href={withBase('/code')}>Code &amp; Libraries</a> page.
+      </p>
+    </section>
+  </div>
+</Base>

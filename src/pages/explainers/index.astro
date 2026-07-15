@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import Card from '../../components/Card.astro';
+import { getCollection } from 'astro:content';
+
+const entries = (await getCollection('explainers', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<Base title="Explainers" description="Short, interactive articles on the ideas behind Mixwell.">
+  <div class="container">
+    <header class="section">
+      <p class="eyebrow">Explainers</p>
+      <h1>Explainers</h1>
+      <p class="prose muted">
+        Short, interactive articles on the ideas behind Mixwell, with inline math, live shader
+        canvases, and copyable code.
+      </p>
+    </header>
+
+    <section class="section" aria-label="Articles">
+      {
+        entries.length > 0 ? (
+          <CardGrid>
+            {entries.map((e) => (
+              <Card
+                href={`/explainers/${e.id}`}
+                title={e.data.title}
+                blurb={e.data.blurb}
+                thumbnail={e.data.thumbnail}
+              />
+            ))}
+          </CardGrid>
+        ) : (
+          <p class="muted">Articles are on the way.</p>
+        )
+      }
+    </section>
+  </div>
+</Base>

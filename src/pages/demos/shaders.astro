@@ -1,0 +1,34 @@
+---
+import Base from '../../layouts/Base.astro';
+import ShaderToyCard from '../../components/ShaderToyCard.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import { shaders } from '../../lib/data';
+---
+
+<Base title="Shader Gallery" description="Shadertoy examples of Mixwell brushes and Reverse-Drift Functions.">
+  <div class="container">
+    <header class="section">
+      <p class="eyebrow">Shadertoy</p>
+      <h1>Shader Gallery</h1>
+      <p class="prose muted">
+        Real-time examples of Mixwell brushes and Reverse-Drift Functions. Click a card to open
+        it on Shadertoy, or press <strong>Run inline</strong> to compile a single shader here;
+        nothing runs until you ask it to.
+      </p>
+    </header>
+
+    <section class="section" aria-label="Shaders">
+      {
+        shaders.length > 0 ? (
+          <CardGrid>
+            {shaders.map((entry) => (
+              <ShaderToyCard entry={entry} />
+            ))}
+          </CardGrid>
+        ) : (
+          <p class="muted">Shaders will appear here soon.</p>
+        )
+      }
+    </section>
+  </div>
+</Base>

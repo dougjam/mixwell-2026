@@ -1,0 +1,133 @@
+---
+import { withBase } from '../lib/paths';
+
+// Launch panel for the co-author's built WebGPU demo.
+//
+// The demo lives at `public/demos/webgpu/app/` and runs as its own cross-origin
+// isolated page (it needs SharedArrayBuffer / pthreads). It is NOT iframed,
+// because an embedded frame can only be cross-origin isolated if every ancestor
+// document is too — which would force COOP/COEP onto the whole site. Instead we
+// launch it as a standalone page.
+interface Props {
+  appUrl?: string; // site-relative folder of the built demo
+  poster?: string | null;
+  fallbackImage?: string | null;
+}
+const {
+  // Link to index.html explicitly (not the folder): the dev server doesn't
+  // resolve a directory request to its index.html, though production does.
+  appUrl = 'demos/webgpu/app/index.html',
+  poster = null,
+  fallbackImage = null,
+} = Astro.props;
+const demoUrl = withBase(appUrl);
+const posterImg = poster ? withBase(poster) : null;
+const fallbackImg = fallbackImage ? withBase(fallbackImage) : null;
+---
+
+<div class="wgpu" data-demo-url={demoUrl}>
+  <div class="wgpu__checking" data-wgpu-checking>
+    <p class="muted">Checking for WebGPU support…</p>
+  </div>
+
+  <div class="wgpu__launch" data-wgpu-launch hidden>
+    {
+      posterImg && (
+        <img class="wgpu__poster" src={posterImg} alt="Mixwell WebGPU demo preview" />
+      )
+    }
+    <div class="wgpu__launch-overlay">
+      <a class="btn btn--primary wgpu__launch-btn" href={demoUrl} target="_blank" rel="noopener">
+        ▶ Launch the demo
+      </a>
+      <p class="wgpu__note muted">Opens the full-screen demo in a new tab.</p>
+    </div>
+  </div>
+
+  <div class="wgpu__fallback" data-wgpu-fallback hidden>
+    <div class="wgpu__fallback-inner">
+      <p><strong>WebGPU isn't available in this browser.</strong></p>
+      <p class="muted">
+        The interactive demo needs a WebGPU-capable browser (recent Chrome, Edge, or Safari
+        Technology Preview). Meanwhile, here's a recorded walkthrough:
+      </p>
+      <slot name="fallback" />
+      {
+        fallbackImg && (
+          <img class="wgpu__fallback-img" src={fallbackImg} alt="Recorded demo still" />
+        )
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .wgpu {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-subtle);
+  }
+  .wgpu__checking {
+    display: grid;
+    place-items: center;
+    min-height: 12rem;
+  }
+  .wgpu__launch {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+  }
+  .wgpu__poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.65;
+  }
+  .wgpu__launch-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.55));
+  }
+  .wgpu__launch-btn {
+    font-size: var(--step-1);
+    padding: var(--space-3) var(--space-6);
+  }
+  .wgpu__note {
+    margin: 0;
+    color: #d0d5dd;
+    font-size: var(--step--1);
+  }
+  .wgpu__fallback-inner {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .wgpu__fallback-img {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.wgpu').forEach((root) => {
+    const checking = root.querySelector<HTMLElement>('[data-wgpu-checking]');
+    const launch = root.querySelector<HTMLElement>('[data-wgpu-launch]');
+    const fallback = root.querySelector<HTMLElement>('[data-wgpu-fallback]');
+
+    const hasWebGPU = 'gpu' in navigator && navigator.gpu != null;
+
+    checking?.setAttribute('hidden', '');
+    if (hasWebGPU) {
+      launch?.removeAttribute('hidden');
+    } else {
+      fallback?.removeAttribute('hidden');
+    }
+  });
+</script>

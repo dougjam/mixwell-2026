@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import { libraries, repoFolderUrl, siteConfig } from '../lib/data';
+---
+
+<Base title="Code & Libraries" description="GLSL, HLSL, OSL, and OpenCL implementations of Mixwell.">
+  <div class="container">
+    <header class="section">
+      <p class="eyebrow">Code</p>
+      <h1>Code &amp; Libraries</h1>
+      <p class="prose muted">
+        Drop-in implementations of the Mixwell brushes and Reverse-Drift Functions across
+        shading languages and DCC integrations. Each library lives in the <a href={siteConfig.codeRepoUrl} target="_blank" rel="noopener noreferrer"> public 
+		code repository</a>; the snippets below show a minimal usage pattern.
+      </p>
+    </header>
+
+    <div class="libs">
+      {
+        libraries.map((lib) => (
+          <section class="lib section" id={lib.id} aria-labelledby={`${lib.id}-h`}>
+            <div class="lib__head">
+              <div>
+                <h2 id={`${lib.id}-h`} class="lib__name">
+                  {lib.name}
+                </h2>
+                <span class="badge">{lib.languageLabel}</span>
+              </div>
+              <div class="lib__links">
+                <a
+                  class="btn"
+                  href={repoFolderUrl(lib.repoFolder)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View in repo ↗
+                </a>
+                {lib.download && (
+                  <a class="btn" href={lib.download} target="_blank" rel="noopener noreferrer">
+                    Download
+                  </a>
+                )}
+              </div>
+            </div>
+            <p class="lib__desc muted">{lib.description}</p>
+            <CodeBlock code={lib.snippet.trimEnd()} lang={lib.language} />
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .libs {
+    display: flex;
+    flex-direction: column;
+  }
+  .lib {
+    scroll-margin-top: 5rem;
+    padding-block: var(--space-8);
+    border-top: 1px solid var(--border);
+  }
+  .lib:first-child {
+    border-top: none;
+  }
+  .lib__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-3);
+  }
+  .lib__name {
+    margin: 0 0 var(--space-2);
+  }
+  .lib__links {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .lib__desc {
+    max-width: var(--prose-width);
+    margin-top: 0;
+  }
+</style>

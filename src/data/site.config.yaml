@@ -1,0 +1,123 @@
+# =============================================================================
+# Mixwell project site — global configuration
+# =============================================================================
+# This is the single source of truth for paper metadata and every external URL.
+#
+# Fields marked "TODO:" are placeholders. Fill them in as the real values become
+# available. Do NOT invent citation, DOI, or BibTeX values — leave the TODO until
+# you have the authoritative value.
+#
+# Paper metadata, author details, the abstract, and the BibTeX block below are
+# authoritative and must be reproduced verbatim.
+# =============================================================================
+
+# --- Paper identity ----------------------------------------------------------
+title: "Mixwell: Sharp 2D Fluid Brushes for Progressive Physics-Based Mixing"
+
+venue:
+  full: "ACM Transactions on Graphics"
+  short: "ACM Trans. Graph."
+  volume: "45"
+  number: "4"
+  articleno: "79"
+  numpages: "18"
+  published: "July 2026"
+
+doi: "10.1145/3811312"
+paperUrl: "https://dl.acm.org/doi/10.1145/3811312"
+
+# --- Authors (in order) ------------------------------------------------------
+# `homepage` is optional; the author name links to it when present.
+authors:
+  - name: "Doug L. James"
+    affiliation: "Stanford University"
+    orcid: "https://orcid.org/0000-0003-3532-8383"
+    homepage: "https://graphics.stanford.edu/~djames/"
+    linkedin: "https://www.linkedin.com/in/dougljames"
+  - name: "Ethan James"
+    affiliation: "Independent researcher"
+    orcid: "https://orcid.org/0009-0000-2135-6581"
+    homepage: null
+    linkedin: "https://www.linkedin.com/in/ethan-james-69a250421/"
+
+# --- Abstract (verbatim) -----------------------------------------------------
+abstract: >-
+  We present Mixwell, a family of sharp 2D fluid brushes and GPU-accelerated
+  analytical methods for progressive, resolution-independent physics-based
+  mixing. Derived from idealized potential flow around a cylindrical tine,
+  Mixwell includes a cusped, Kelvinlet-style regularized velocity brush that
+  parsimoniously captures cylinder-fluid interactions. Building on Maxwell's
+  1869 drift formulation, we develop GPU-friendly evaluation strategies for
+  particle drift in both infinite and finite strokes. For image-based workflows,
+  we introduce cylindrical Reverse-Drift Functions (RDFs), displacement fields
+  that encode tine insertion, motion, and removal. Like signed distance fields
+  in geometric modeling, RDFs compose naturally and can be chained in shaders to
+  model complex operations while avoiding intermediate texture blur. We also
+  propose a periodicity-exploiting composition scheme for complex RDF patterns.
+  All Mixwell operations are evaluated independently per sample, enabling truly
+  progressive mixing and rendering without global solves, grids, or intermediate
+  texture resampling. We demonstrate real-time GLSL and HLSL implementations and
+  production integrations in Houdini (OpenCL, OSL), enabling progressive,
+  arbitrary-resolution mixing and rendering with negligible numerical
+  dissipation.
+
+# --- Badges (editable list) --------------------------------------------------
+badges:
+  - "SIGGRAPH 2026 Best Paper"
+  - "ACM Transactions on Graphics"
+
+# --- Teaser hero -------------------------------------------------------------
+# Leave `teaserVideoId` null to show the static hero image.
+# Provide a YouTube ID to show a looping/embedded teaser clip instead.
+teaser:
+  image: "teaser/hero.webp"             # web-optimized teaser still (1920x850)
+  alt: "Marbled Mixwell scarves rendered on three mannequins"
+  teaserVideoId: null                    # TODO: YouTube ID for a teaser clip (optional)
+
+# --- Primary links -----------------------------------------------------------
+# Any link whose value is null renders as a disabled/"coming soon" control.
+links:
+  # Full-resolution PDFs hosted on the author's Stanford page (kept out of the
+  # repo to avoid committing ~70 MB; the marbling detail does not survive
+  # compression, so these are the full files served directly).
+  paperPdf: "https://graphics.stanford.edu/~djames/wp-content/uploads/mixwell/mixwell-2026-paper.pdf"
+  supplementalPdf: "https://graphics.stanford.edu/~djames/wp-content/uploads/mixwell/mixwell-2026-supplemental.pdf"
+  supplementalVideoId: "FUzLs-V1KcE"     # paper video: https://www.youtube.com/watch?v=FUzLs-V1KcE
+  talkVideoId: null                      # TODO: YouTube ID (talk)
+  codeRepo: "https://github.com/dougjam/Mixwell"
+  data: null                             # TODO: Google Drive / Dropbox link (datasets, masters)
+
+# Base URL of the public code repository. Per-library folder paths live in
+# `libraries.yaml` and are joined to this.
+codeRepoUrl: "https://github.com/dougjam/Mixwell"
+
+# --- BibTeX (verbatim; reproduced exactly by the citation UI) ----------------
+bibtex: |
+  @article{10.1145/3811312,
+  author = {James, Doug and James, Ethan},
+  title = {Mixwell: Sharp 2D Fluid Brushes for Progressive Physics-Based Mixing},
+  year = {2026},
+  issue_date = {July 2026},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {45},
+  number = {4},
+  issn = {0730-0301},
+  url = {https://dl.acm.org/doi/10.1145/3811312},
+  doi = {10.1145/3811312},
+  abstract = {We present Mixwell, a family of sharp 2D fluid brushes and GPU-accelerated analytical methods for progressive, resolution-independent physics-based mixing. Derived from idealized potential flow around a cylindrical tine, Mixwell includes a cusped, Kelvinlet-style regularized velocity brush that parsimoniously captures cylinder-fluid interactions. Building on Maxwell's 1869 drift formulation, we develop GPU-friendly evaluation strategies for particle drift in both infinite and finite strokes. For image-based workflows, we introduce cylindrical Reverse-Drift Functions (RDFs), displacement fields that encode tine insertion, motion, and removal. Like signed distance fields in geometric modeling, RDFs compose naturally and can be chained in shaders to model complex operations while avoiding intermediate texture blur. We also propose a periodicity-exploiting composition scheme for complex RDF patterns. All Mixwell operations are evaluated independently per sample, enabling truly progressive mixing and rendering without global solves, grids, or intermediate texture resampling. We demonstrate real-time GLSL and HLSL implementations and production integrations in Houdini (OpenCL, OSL), enabling progressive, arbitrary-resolution mixing and rendering with negligible numerical dissipation.},
+  journal = {ACM Trans. Graph.},
+  month = jul,
+  articleno = {79},
+  numpages = {18}
+  }
+
+# --- News / changelog (most recent first) ------------------------------------
+news:
+  - date: "2026-07-13"
+    text: "Project site launched with demos, shader gallery, code libraries, and explainers."
+  - date: "2026-07-01"
+    text: "Mixwell published in ACM Transactions on Graphics 45(4)."
+  - date: "2026-05-19"
+    text: "Mixwell selected as a Best Paper at SIGGRAPH 2026."
+    url: "https://blog.siggraph.org/2026/05/siggraph-2026-technical-papers-awards-best-papers-honorable-mentions-and-test-of-time.html/"

@@ -1,0 +1,11 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Explainers placeholder">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a2130"/><stop offset="1" stop-color="#0e1220"/></linearGradient></defs>
+  <rect width="640" height="400" fill="url(#g)"/>
+  <g fill="none" stroke="#A6CE39" stroke-width="2" opacity="0.5">
+    <path d="M40 250 C 180 140, 300 320, 460 230 S 620 170, 620 210"/>
+    <path d="M40 210 C 180 100, 300 270, 460 190 S 620 130, 620 170"/>
+    <path d="M40 290 C 180 190, 300 360, 460 280 S 620 230, 620 260"/>
+  </g>
+  <text x="30" y="52" fill="#e6e9ef" font-family="system-ui,sans-serif" font-size="24" font-weight="700">Explainers</text>
+  <text x="30" y="80" fill="#9aa4b2" font-family="system-ui,sans-serif" font-size="15">RDF articles</text>
+</svg>

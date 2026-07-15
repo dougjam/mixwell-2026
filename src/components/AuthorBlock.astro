@@ -1,0 +1,59 @@
+---
+import type { Author } from '../lib/data';
+
+interface Props {
+  authors: Author[];
+}
+const { authors } = Astro.props;
+
+// Link each name to the best available profile: homepage, else LinkedIn, else ORCID.
+function profileLink(a: Author): string | null {
+  return a.homepage ?? a.linkedin ?? a.orcid ?? null;
+}
+---
+
+<ul class="authors">
+  {
+    authors.map((a) => {
+      const link = profileLink(a);
+      return (
+        <li class="author">
+          {link ? (
+            <a href={link} target="_blank" rel="noopener noreferrer">
+              {a.name}
+            </a>
+          ) : (
+            <span>{a.name}</span>
+          )}
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .authors {
+    list-style: none;
+    margin: var(--space-6) 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    font-size: var(--step-1);
+    font-weight: 550;
+  }
+  .author:not(:last-child)::after {
+    content: "·";
+    margin-left: var(--space-3);
+    color: var(--text-faint);
+    font-weight: 400;
+  }
+  .author a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  .author a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+</style>

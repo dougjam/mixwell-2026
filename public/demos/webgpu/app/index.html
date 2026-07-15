@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mixwell WebGPU Demo</title>
+    <!--
+      Bootstrap page for the Mixwell WebGPU demo.
+
+      The demo (Mixwell.html and friends) is copied verbatim from the build and
+      is NOT edited, so it can be refreshed by a simple file copy. This wrapper
+      enables cross-origin isolation (needed for the demo's SharedArrayBuffer /
+      pthreads) via the service worker, then hands off to Mixwell.html. Once the
+      worker is active it controls this whole folder, so Mixwell.html is isolated
+      too.
+    -->
+    <script src="coi-serviceworker.js"></script>
+    <script>
+      // Once the page is cross-origin isolated, continue into the demo.
+      if (window.crossOriginIsolated) {
+        window.location.replace('Mixwell.html');
+      } else {
+        // Not isolated yet. coi-serviceworker.js reloads once after the worker
+        // registers; if isolation still hasn't taken effect after a moment, show
+        // a fallback so the user isn't stuck on a blank page.
+        window.addEventListener('load', () => {
+          setTimeout(() => {
+            if (!window.crossOriginIsolated) {
+              document.getElementById('fallback').hidden = false;
+              document.getElementById('spinner').hidden = true;
+            }
+          }, 4000);
+        });
+      }
+    </script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: linear-gradient(177deg, #3a3a3a, #303e3d, #22223a);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+      .box {
+        max-width: 32rem;
+        padding: 2rem;
+      }
+      .spinner {
+        width: 42px;
+        height: 42px;
+        margin: 0 auto 1rem;
+        border: 6px solid rgba(255, 255, 255, 0.25);
+        border-left-color: #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      a {
+        color: #7fd0ff;
+      }
+      #fallback {
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <div id="spinner">
+        <div class="spinner"></div>
+        <p>Preparing the demo…</p>
+      </div>
+      <div id="fallback" hidden>
+        <p>
+          This browser or host couldn't enable the cross-origin isolation the demo
+          needs (SharedArrayBuffer). Try a recent Chrome or Edge.
+        </p>
+        <p><a href="Mixwell.html">Continue to the demo anyway →</a></p>
+      </div>
+    </div>
+  </body>
+</html>

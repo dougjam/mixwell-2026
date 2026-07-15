@@ -1,0 +1,16 @@
+# =============================================================================
+# Interactive demos
+# =============================================================================
+# Each entry is a card that links to a demo page (internal `route`) or an
+# external `url`. Provide exactly one of `route` or `url`.
+#
+# Add a new demo by copying an entry. Thumbnails are web-optimized images under
+# `public/` (referenced without the base path — it is added automatically).
+# =============================================================================
+
+demos:
+  - id: webgpu
+    title: "Interactive WebGPU Mixer"
+    blurb: "Progressive, resolution-independent mixing in your browser. Includes built-in presets."
+    thumbnail: "placeholders/thumb-webgpu.svg"   # TODO: replace with a real still
+    route: "/demos/webgpu"

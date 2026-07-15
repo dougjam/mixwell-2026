@@ -1,0 +1,84 @@
+---
+import { withBase, isExternal } from '../lib/paths';
+import type { SiteConfig } from '../lib/data';
+
+interface Props {
+  config: SiteConfig;
+}
+const { config } = Astro.props;
+const { links, doi, paperUrl } = config;
+
+// Each raw link is a URL, a site-relative asset path (e.g. a hosted PDF), or
+// null. Null → disabled "coming soon" control.
+const rawItems: { label: string; href: string | null; icon: string }[] = [
+  { label: 'Paper', href: links.paperPdf, icon: '📄' },
+  { label: 'Supplement', href: links.supplementalPdf, icon: '📄' },
+  {
+    label: 'Video',
+    href: links.supplementalVideoId
+      ? `https://www.youtube.com/watch?v=${links.supplementalVideoId}`
+      : null,
+    icon: '▶',
+  },
+  {
+    label: 'Talk',
+    href: links.talkVideoId ? `https://www.youtube.com/watch?v=${links.talkVideoId}` : null,
+    icon: '🎤',
+  },
+  { label: 'Code', href: links.codeRepo, icon: '⟨⟩' },
+  { label: 'Data', href: links.data, icon: '🗂' },
+  { label: 'DOI', href: paperUrl ?? (doi ? `https://doi.org/${doi}` : null), icon: '🔗' },
+];
+
+// Resolve: external URLs pass through; local asset paths get the base prefix.
+// Every resolved link opens in a new tab.
+const items = rawItems.map((item) => ({
+  ...item,
+  resolved: item.href ? (isExternal(item.href) ? item.href : withBase(item.href)) : null,
+}));
+---
+
+<div class="primary-links">
+  {
+    items.map((item) =>
+      item.resolved ? (
+        <a class="btn" href={item.resolved} target="_blank" rel="noopener noreferrer">
+          <span aria-hidden="true">{item.icon}</span>
+          {item.label}
+        </a>
+      ) : (
+        <span
+          class="btn"
+          aria-disabled="true"
+          title="Coming soon"
+        >
+          <span aria-hidden="true">{item.icon}</span>
+          {item.label}
+          <span class="primary-links__soon">soon</span>
+        </span>
+      )
+    )
+  }
+  <a class="btn" href="#bibtex">
+    <span aria-hidden="true">＂</span>
+    BibTeX
+  </a>
+</div>
+
+<style>
+  .primary-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-block: var(--space-6);
+  }
+  .primary-links__soon {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 0.45em;
+  }
+</style>
