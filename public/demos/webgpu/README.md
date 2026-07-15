@@ -25,6 +25,14 @@ index.html              <- bootstrap that enables cross-origin isolation, then l
 coi-serviceworker.js    <- injects COOP/COEP headers (see "Why" below)
 ```
 
+> **Keep the bundle binary in git.** `Mixwell.js` indexes `Mixwell.data` by exact
+> byte offset, so a single altered byte corrupts the packed shaders and the demo
+> fails to load (with a shader-parse error) for everyone but you locally. The repo
+> root `.gitattributes` marks `public/demos/webgpu/app/**` (and `*.wasm`/`*.data`)
+> as `binary` so git never normalizes line endings on these files — do not remove
+> that rule, and after refreshing verify the served `Mixwell.data` is byte-for-byte
+> identical to the build output.
+
 ## Why the extra wrapper?
 
 The demo uses multithreading (pthreads / SharedArrayBuffer), which browsers only
