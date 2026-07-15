@@ -1,0 +1,19 @@
+# Normalize line endings for text by default, but NEVER touch binary blobs.
+# Git misdetecting a binary as text and rewriting CRLF<->LF corrupts it — this
+# is what broke the WebGPU demo (Mixwell.data is byte-offset-indexed by
+# Mixwell.js; stripping CR bytes shifted every offset and mangled the shaders).
+
+# The Emscripten build bundle is served byte-for-byte. Treat it all as binary.
+public/demos/webgpu/app/** binary
+
+# Binary asset types anywhere in the repo.
+*.wasm  binary
+*.data  binary
+*.webp  binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
