@@ -2,7 +2,6 @@
 import Base from '../../layouts/Base.astro';
 import ShaderToyCard from '../../components/ShaderToyCard.astro';
 import CardGrid from '../../components/CardGrid.astro';
-import WipBanner from '../../components/WipBanner.astro';
 import { shaders } from '../../lib/data';
 ---
 
@@ -13,12 +12,9 @@ import { shaders } from '../../lib/data';
       <h1>Shader Gallery</h1>
       <p class="prose muted">
         Real-time examples of Mixwell brushes and Reverse-Drift Functions. Click a card to open
-        it on Shadertoy, or press <strong>Run inline</strong> to compile a single shader here;
-        nothing runs until you ask it to.
+        it on Shadertoy.
       </p>
     </header>
-
-    <WipBanner />
 
     <section class="section" aria-label="Shaders">
       {

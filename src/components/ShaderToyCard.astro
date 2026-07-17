@@ -1,38 +1,30 @@
 ---
 import { withBase } from '../lib/paths';
 import type { ShaderEntry } from '../lib/data';
-import { shaderEmbedUrl } from '../lib/data';
 
 interface Props {
   entry: ShaderEntry;
 }
 const { entry } = Astro.props;
 const thumb = withBase(entry.thumbnail);
-const embed = shaderEmbedUrl(entry);
 ---
 
-<article class="stcard" data-embed={embed} data-title={entry.title}>
-  <a
-    class="stcard__thumb"
-    href={entry.viewUrl}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label={`Open "${entry.title}" on Shadertoy (new tab)`}
-  >
+<a
+  class="stcard"
+  href={entry.viewUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={`Open "${entry.title}" on Shadertoy (new tab)`}
+>
+  <div class="stcard__thumb">
     <img src={thumb} alt="" loading="lazy" />
-    <span class="stcard__st" title="Shadertoy" aria-hidden="true">ST</span>
-  </a>
+    <span class="stcard__st" title="Opens on Shadertoy" aria-hidden="true">ST ↗</span>
+  </div>
   <div class="stcard__body">
     <h3 class="stcard__title">{entry.title}</h3>
     <p class="stcard__exp muted">{entry.explanation}</p>
-    <div class="stcard__actions">
-      <button class="btn stcard__run" type="button" data-run>Run inline</button>
-      <a class="btn" href={entry.viewUrl} target="_blank" rel="noopener noreferrer">
-        Shadertoy ↗
-      </a>
-    </div>
   </div>
-</article>
+</a>
 
 <style>
   .stcard {
@@ -43,12 +35,22 @@ const embed = shaderEmbedUrl(entry);
     overflow: hidden;
     background: var(--surface);
     box-shadow: var(--shadow);
+    color: inherit;
+    transition:
+      transform 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .stcard:hover {
+    text-decoration: none;
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
   }
   .stcard__thumb {
     position: relative;
     aspect-ratio: 16 / 10;
     background: var(--bg-subtle);
-    display: block;
   }
   .stcard__thumb img {
     width: 100%;
@@ -62,7 +64,7 @@ const embed = shaderEmbedUrl(entry);
     background: color-mix(in srgb, var(--bg) 82%, transparent);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 0.05em 0.4em;
+    padding: 0.05em 0.45em;
     font-size: var(--step--1);
     font-weight: 700;
     color: var(--text-muted);
@@ -81,42 +83,5 @@ const embed = shaderEmbedUrl(entry);
   .stcard__exp {
     font-size: var(--step--1);
     margin: 0;
-    flex: 1;
-  }
-  .stcard__actions {
-    display: flex;
-    gap: var(--space-2);
-    margin-top: var(--space-2);
-  }
-  .stcard :global(.stcard__embed) {
-    aspect-ratio: 16 / 10;
-    background: #000;
-  }
-  .stcard :global(.stcard__embed iframe) {
-    width: 100%;
-    height: 100%;
-    border: 0;
-    display: block;
   }
 </style>
-
-<script>
-  document.querySelectorAll<HTMLElement>('.stcard').forEach((card) => {
-    const runBtn = card.querySelector<HTMLButtonElement>('[data-run]');
-    runBtn?.addEventListener('click', () => {
-      const embed = card.dataset.embed;
-      const title = card.dataset.title ?? 'Shadertoy';
-      const thumb = card.querySelector<HTMLElement>('.stcard__thumb');
-      if (!embed || !thumb) return;
-      const wrap = document.createElement('div');
-      wrap.className = 'stcard__embed';
-      const iframe = document.createElement('iframe');
-      iframe.src = `${embed}?gui=true&paused=false&muted=true`;
-      iframe.title = title;
-      iframe.allow = 'fullscreen';
-      wrap.appendChild(iframe);
-      thumb.replaceWith(wrap);
-      runBtn.remove();
-    });
-  });
-</script>
