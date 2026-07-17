@@ -68,6 +68,21 @@ build). If you have `sharp` handy (already a dependency), a one-liner also works
 node -e "require('sharp')('input.jpg').webp({quality:82}).toFile('public/teaser/hero.webp')"
 ```
 
+### Currently hidden sections
+
+**Explainers** and **Gallery** are intentionally hidden for now (no content yet).
+Their pages and data still build — they're just unlinked from the site. To bring
+one back:
+
+- **Nav link:** re-add its entry to the `nav` array in
+  [`src/layouts/Base.astro`](src/layouts/Base.astro).
+- **Landing page:** un-comment its block in
+  [`src/pages/index.astro`](src/pages/index.astro) (search for the marker comment,
+  e.g. `Gallery preview hidden` or `Explainers hidden`).
+
+Everything to re-enable them is already in place — just add content
+(`gallery.yaml` images, or an `.mdx` explainer) and restore the two links above.
+
 ## Interactive WebGPU demo
 
 The built demo is bundled under `public/demos/webgpu/app/` and runs as a

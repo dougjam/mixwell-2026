@@ -25,9 +25,7 @@ const rawItems: { label: string; href: string | null; icon: string }[] = [
     href: links.talkVideoId ? `https://www.youtube.com/watch?v=${links.talkVideoId}` : null,
     icon: '🎤',
   },
-  { label: 'Code', href: links.codeRepo, icon: '⟨⟩' },
-  { label: 'Data', href: links.data, icon: '🗂' },
-  { label: 'DOI', href: paperUrl ?? (doi ? `https://doi.org/${doi}` : null), icon: '🔗' },
+  { label: 'ACM DL', href: paperUrl ?? (doi ? `https://doi.org/${doi}` : null), icon: '📚' },
 ];
 
 // Resolve: external URLs pass through; local asset paths get the base prefix.
@@ -59,10 +57,6 @@ const items = rawItems.map((item) => ({
       )
     )
   }
-  <a class="btn" href="#bibtex">
-    <span aria-hidden="true">＂</span>
-    BibTeX
-  </a>
 </div>
 
 <style>
