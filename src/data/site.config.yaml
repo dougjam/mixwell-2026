@@ -87,9 +87,10 @@ links:
   codeRepo: "https://github.com/dougjam/Mixwell"
   data: null                             # TODO: Google Drive / Dropbox link (datasets, masters)
 
-# Base URL of the public code repository. Per-library folder paths live in
-# `libraries.yaml` and are joined to this.
-codeRepoUrl: "https://github.com/dougjam/Mixwell"
+# Base URL of the repository that hosts the released code. The OSL library and
+# Houdini scene live in this same repo under public/code/, so they can be edited
+# on GitHub and the site picks up the change on the next deploy.
+codeRepoUrl: "https://github.com/dougjam/mixwell-2026"
 
 # --- BibTeX (verbatim; reproduced exactly by the citation UI) ----------------
 bibtex: |

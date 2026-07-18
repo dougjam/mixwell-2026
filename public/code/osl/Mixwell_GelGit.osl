@@ -1,0 +1,137 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Doug L. James and Ethan James
+
+///////////////////////////////////////////////////////////////////////
+////  Mixwell Gel-Git RDF Shader for Redshift OSL                    //
+////  Applies Gel-Git (bidirectional comb) reverse-drift to pMixwell //
+////  @author Doug L James, 2026                                     //
+///////////////////////////////////////////////////////////////////////
+
+// Constants
+#define PI 3.14159265358979323846
+#define RDSEGMENT_MASK_R_FACTOR 10.0
+
+/*** UTILITIES ***/
+
+vector rot90(vector v) {
+    return vector(-v[1], v[0], 0.0);
+}
+
+/*** RDF CORE FUNCTIONS ***/
+
+// Line RDF: Matched series approximation to 1D drift.
+// Input: height above flow line, and cylinder radius, r.
+float rdLine1DS(float height, float r) {
+    float y = height / r;
+    float dx = 0.0;
+    float eps = 0.002;
+    y = sqrt(y * y + eps * eps);
+    
+    if (y > 6.50416858646776) {
+        float h = 1.0 / y;
+        float h2 = h * h;
+        float h3 = h * h2;
+        float poly = ((((6615.0 * h2 - 1960.0) * h2 + 600.0) * h2 - 192.0) * h2 + 64.0);
+        dx = -(PI / 256.0) * h3 * poly;
+    }
+    else if (y > 0.8220844420096408) {
+        float dy = y - 2.3;
+        float num = (((((-1.01973e-7 * dy + 1.77539e-6) * dy - 0.0068946) * dy - 0.043355) * dy - 0.0937878) * dy - 0.0413839);
+        float den = ((((((0.00875686 * dy + 0.115772) * dy + 0.665761) * dy + 2.08615) * dy + 3.66495) * dy + 3.26035) * dy + 1.0);
+        dx = num / den;
+    }
+    else {
+        float z = y * y;
+        float A = ((((0.00015811568 * z - 0.00096477622) * z + 0.0076619254) * z - 0.16369764) * z - 0.039720771);
+        float B = ((((-0.00018775463 * z + 0.0010681152) * z - 0.0073242188) * z + 0.09375) * z + 0.5);
+        dx = A + B * log(y);
+    }
+    return 2.0 * r * dx;
+}
+
+// Min distance from y to a tine of a comb with pitch hy, rooted at the origin.
+float minCombDist(float y, float hy) {
+    return hy * abs(mod(y / hy - 0.5, 1.0) - 0.5);
+}
+
+// RDF for Gel-Git pattern.
+// Alternating forward/backward combing creates characteristic zigzag patterns.
+vector rdGelGit(vector p, float combR, vector dir_in, float combGap, int nPasses) {
+    vector dir = normalize(dir_in);
+    vector n = rot90(dir);
+    float y = dot(p, n);
+    float passGap = (float)nPasses * combGap * 2.0;
+    vector rdf = vector(0.0, 0.0, 0.0);
+    
+    // GIT ("left") - combing in negative direction
+    for (int k = 0; k < nPasses; k++) {
+        float yOffset = (0.5 + (float)k) * combGap * 2.0;
+        float height = minCombDist(y + yOffset, passGap);
+        rdf -= rdLine1DS(height, combR) * dir;
+    }
+    
+    // GEL ("right") - combing in positive direction
+    for (int k2 = 0; k2 < nPasses; k2++) {
+        float yOffset = (float)k2 * combGap * 2.0;
+        float height = minCombDist(y + yOffset, passGap);
+        rdf += rdLine1DS(height, combR) * dir;
+    }
+    
+    return rdf;
+}
+
+///////////////////////////////////////////////////////////////////////
+////  MAIN SHADER: Gel-Git Pass                                      //
+///////////////////////////////////////////////////////////////////////
+
+shader Mixwell_GelGit(
+    // Input position
+    vector pMixwell_in = 0
+        [[ string label = "pMixwell In",
+           string help = "Input 2D Mixwell position" ]],
+    
+    // Gel-Git parameters
+    float tineRadius = 0.05
+        [[ string label = "Tine Radius",
+           string help = "Radius of combing tines",
+           float min = 0.001,
+           float max = 0.5 ]],
+    float angle = 0.0
+        [[ string label = "Angle (deg)",
+           string help = "Combing direction (0 = +X direction)",
+           float min = 0.0,
+           float max = 360.0 ]],
+    float combGap = 0.125
+        [[ string label = "Comb Gap",
+           string help = "Spacing between tines",
+           float min = 0.001,
+           float max = 1.0 ]],
+    int nPasses = 2
+        [[ string label = "N Passes",
+           string help = "Number of interleaved comb passes",
+           int min = 1,
+           int max = 10 ]],
+    
+    // Outputs
+    output vector pMixwell = 0
+        [[ string label = "pMixwell Out",
+           string help = "Output 2D Mixwell position with RDF applied" ]],
+    output vector displacement = 0
+        [[ string label = "Displacement",
+           string help = "RDF displacement vector from this pass" ]],
+    output float displacementMag = 0
+        [[ string label = "Displacement Magnitude" ]]
+)
+{
+    // Compute direction from angle
+    float ang = radians(angle);
+    vector dir = vector(cos(ang), sin(ang), 0.0);
+    
+    // Compute Gel-Git RDF
+    vector rdf = rdGelGit(pMixwell_in, tineRadius, dir, combGap, nPasses);
+    
+    // Output displaced position and displacement
+    pMixwell = pMixwell_in + rdf;
+    displacement = rdf;
+    displacementMag = length(rdf);
+}

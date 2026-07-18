@@ -1,0 +1,328 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Doug L. James and Ethan James
+
+///////////////////////////////////////////////////////////////////////
+////  Mixwell Paint ColorMaps Shader for Redshift OSL                //
+////  Samples paint pattern at pMixwell position                     //
+////  Supports multiple patterns and color palettes                  //
+////  @author Doug L James, 2026                                     //
+///////////////////////////////////////////////////////////////////////
+
+/*** UTILITIES ***/
+
+float iqhash(float n) {
+    return mod(sin(n) * 43758.5453, 1.0);
+}
+
+/*** PALETTES ***/
+
+color paletteGoldenMeadow(int idx) {
+    // fb6107, 5c8001, fbb02d, 7cb518, f3de2c
+    if (idx == 0) return color(0.9843137, 0.3803922, 0.0274510);  // Blaze Orange
+    if (idx == 1) return color(0.3607843, 0.5019608, 0.0039216);  // Forest Moss
+    if (idx == 2) return color(0.9843137, 0.6901961, 0.1764706);  // Sunflower Gold
+    if (idx == 3) return color(0.4862745, 0.7098039, 0.0941176);  // Lime Moss
+    if (idx == 4) return color(0.9529412, 0.8705882, 0.1725490);  // Golden Glow
+    return color(0.9529412, 0.8705882, 0.1725490);
+}
+
+color paletteCoolors1(int idx) {
+    // 1a344d, 5a1800, 1e8eb6, fc9843, f7f5f6 (Brown Blue)
+    if (idx == 0) return color(0.1019608, 0.2039216, 0.3019608);  // Dark Blue
+    if (idx == 1) return color(0.3529412, 0.09411765, 0.0);       // Dark Brown
+    if (idx == 2) return color(0.1176471, 0.5568628, 0.7137255);  // Sky Blue
+    if (idx == 3) return color(0.9882353, 0.5960785, 0.2627451);  // Orange
+    if (idx == 4) return color(0.9686275, 0.9607843, 0.9647059);  // Off White
+    return color(0.9686275, 0.9607843, 0.9647059);
+}
+
+color paletteClassic(int idx) {
+    if (idx == 0) return color(0.7, 0.1, 0.1);      // Deep Red
+    if (idx == 1) return color(0.1, 0.2, 0.5);      // Navy Blue
+    if (idx == 2) return color(0.85, 0.7, 0.3);     // Gold
+    if (idx == 3) return color(0.2, 0.4, 0.3);      // Forest Green
+    if (idx == 4) return color(0.95, 0.93, 0.88);   // Cream
+    return color(0.95, 0.93, 0.88);
+}
+
+color paletteOcean(int idx) {
+    if (idx == 0) return color(0.0, 0.2, 0.4);      // Deep Ocean
+    if (idx == 1) return color(0.0, 0.5, 0.6);      // Teal
+    if (idx == 2) return color(0.3, 0.7, 0.8);      // Aqua
+    if (idx == 3) return color(0.9, 0.95, 0.97);    // Sea Foam
+    if (idx == 4) return color(0.1, 0.3, 0.35);     // Dark Teal
+    return color(0.9, 0.95, 0.97);
+}
+
+color paletteSunset(int idx) {
+    if (idx == 0) return color(0.9, 0.3, 0.1);      // Burnt Orange
+    if (idx == 1) return color(0.95, 0.6, 0.2);     // Tangerine
+    if (idx == 2) return color(0.98, 0.85, 0.4);    // Pale Yellow
+    if (idx == 3) return color(0.6, 0.2, 0.4);      // Mauve
+    if (idx == 4) return color(0.3, 0.1, 0.3);      // Deep Purple
+    return color(0.98, 0.85, 0.4);
+}
+
+color paletteMonochrome(int idx) {
+    if (idx == 0) return color(0.1, 0.1, 0.1);      // Near Black
+    if (idx == 1) return color(0.3, 0.3, 0.3);      // Dark Gray
+    if (idx == 2) return color(0.5, 0.5, 0.5);      // Medium Gray
+    if (idx == 3) return color(0.75, 0.75, 0.75);   // Light Gray
+    if (idx == 4) return color(0.95, 0.95, 0.95);   // Near White
+    return color(0.95, 0.95, 0.95);
+}
+
+color paletteEarth(int idx) {
+    if (idx == 0) return color(0.55, 0.27, 0.07);   // Sienna
+    if (idx == 1) return color(0.36, 0.25, 0.20);   // Dark Brown
+    if (idx == 2) return color(0.76, 0.60, 0.42);   // Tan
+    if (idx == 3) return color(0.42, 0.56, 0.14);   // Olive Green
+    if (idx == 4) return color(0.96, 0.87, 0.70);   // Wheat
+    return color(0.96, 0.87, 0.70);
+}
+
+color getPaletteColor(int paletteIdx, int colorIdx) {
+    int idx = colorIdx % 6;  // Wrap to valid range
+    if (paletteIdx == 0) return paletteGoldenMeadow(idx);
+    if (paletteIdx == 1) return paletteCoolors1(idx);
+    if (paletteIdx == 2) return paletteClassic(idx);
+    if (paletteIdx == 3) return paletteOcean(idx);
+    if (paletteIdx == 4) return paletteSunset(idx);
+    if (paletteIdx == 5) return paletteMonochrome(idx);
+    if (paletteIdx == 6) return paletteEarth(idx);
+    return paletteGoldenMeadow(idx);
+}
+
+/*** PAINT PATTERNS ***/
+
+// Splat blob rows helper
+color splatBlobRowsWithPalette(vector p, color colBG, int paletteIdx, int colorIdx,
+                                float HX, float HY, float dY, float blobRadius, int isOddRow) {
+    color colBlob = getPaletteColor(paletteIdx, colorIdx);
+    float Yoffset = (isOddRow != 0) ? 0.5 * HY : 0.0;
+    float ySnap = Yoffset + round((p[1] - Yoffset) / HY) * HY;
+    float py = p[1] - ySnap;
+    float px = p[0] - sin(437.5453 * ySnap) * 437.5453;
+    float F = 1239.0 + ySnap;
+    
+    float x0 = HX * floor(px / HX);
+    float x1 = x0 + HX;
+    vector p0 = vector(x0, dY * sin(F * x0), 0.0);
+    vector p1 = vector(x1, dY * sin(F * x1), 0.0);
+    vector pLocal = vector(px, py, 0.0);
+    float D0 = dot(pLocal - p0, pLocal - p0);
+    float D1 = dot(pLocal - p1, pLocal - p1);
+    float iC = (D0 < D1) ? round(x0 / HX) : round(x1 / HX);
+    
+    float xC = iC * HX;
+    float xL = xC - HX;
+    float xR = xC + HX;
+    float yC = dY * sin(F * xC);
+    float yL = dY * sin(F * xL);
+    float yR = dY * sin(F * xR);
+    vector pC = vector(xC, yC, 0.0);
+    vector pL = vector(xL, yL, 0.0);
+    vector pR = vector(xR, yR, 0.0);
+    float e2 = 0.00001 * HX * HX;
+    float DC = dot(pLocal - pC, pLocal - pC) + e2;
+    float DL = dot(pLocal - pL, pLocal - pL) + e2;
+    float DR = dot(pLocal - pR, pLocal - pR) + e2;
+    float f = 1.0 / DC - 1.0 / DL - 1.0 / DR;
+    f -= 1.0 / (blobRadius * blobRadius);
+    float reg = smoothstep(HX, 2.0 * HX, max(0.0, f));
+    return mix(colBG, colBlob, reg);
+}
+
+// Blob pattern with palette
+color paintBlobsWithPalette(vector p, int paletteIdx, float blobScale) {
+    vector ps = p / blobScale;
+    float HX = 0.25;
+    float HY = 1.0;
+    float dY = HX / 10.0;
+    color col = color(0, 0, 0);
+    col = splatBlobRowsWithPalette(ps, col, paletteIdx, 0, HX, HY, dY, 2.0 * HX, 0);
+    col = splatBlobRowsWithPalette(ps, col, paletteIdx, 1, HX, HY, dY, 2.0 * HX, 1);
+    col = splatBlobRowsWithPalette(ps, col, paletteIdx, 2, HX, HY, dY, HX / 2.0, 0);
+    col = splatBlobRowsWithPalette(ps, col, paletteIdx, 3, HX, HY, dY, HX / 3.0, 1);
+    col = splatBlobRowsWithPalette(ps, col, paletteIdx, 4, HX, HY, dY, HX / 6.0, 0);
+    col = splatBlobRowsWithPalette(ps, col, paletteIdx, 5, HX, HY, dY, HX / 7.0, 1);
+    return col;
+}
+
+// Chocolate pattern (fixed colors)
+color paintChocolate(vector q) {
+    float theta = 0.3;
+    float c = cos(theta);
+    float s = sin(theta);
+    vector pRot = vector(c * q[0] - s * q[1], s * q[0] + c * q[1], 0.0);
+    float k0 = 45.0;
+    float k1 = 29.0;
+    float phi0 = 3.0;
+    float phi1 = 2.0;
+    color col0 = color(0.6862745098, 0.4, 0.1490196078);          // Caramel
+    color col1 = color(0.6901960784, 0.9411764706, 0.9921568627); // Light Cyan
+    color colChocolate = color(0.1490196078, 0.0862745098, 0.0901960784); // Dark Chocolate
+    
+    float splat0 = smoothstep(0.5, 0.64,
+        sin(k0 * pRot[0] * (1.0 - 0.153 * pRot[0]) + phi0) * 
+        sin(k0 * pRot[1] * (1.0 + 0.6 * pRot[0]) + phi0) *
+        (1.0 - 0.2 * sin(12.0 * pRot[0] * pRot[0])));
+    float splat1 = smoothstep(0.5, 0.64,
+        sin(k1 * pRot[0] * (1.0 + 0.230 * pRot[0]) + phi1) * 
+        cos(k1 * pRot[1] * (1.0 - 0.1 * pRot[0]) + phi1) *
+        (1.0 - 0.2 * sin(12.0 * pRot[0] * pRot[1])));
+    
+    return mix(colChocolate + splat0 * col0, col1, splat1);
+}
+
+// Stripe pattern with palette
+color paintStripes(vector q, int paletteIdx, float stripeFreq) {
+    float t = pow(smoothstep(0.0, 1.0, mod(stripeFreq * q[1] + sin(33.0 * q[0]), 1.0)), 3.0);
+    color col0 = getPaletteColor(paletteIdx, 0);
+    color col1 = getPaletteColor(paletteIdx, 4);
+    return mix(col0, col1, t);
+}
+
+// Checkerboard pattern with palette
+color paintCheckerboard(vector q, float cellSize, int paletteIdx) {
+    int cellx = (int)floor(q[0] / cellSize);
+    int celly = (int)floor(q[1] / cellSize);
+    int checker = (cellx + celly) & 1;
+    color col0 = getPaletteColor(paletteIdx, 0);
+    color col1 = getPaletteColor(paletteIdx, 4);
+    return (checker != 0) ? col1 : col0;
+}
+
+// Gradient bands pattern
+color paintGradientBands(vector q, int paletteIdx, float bandFreq) {
+    float t = mod(q[1] * bandFreq, 1.0);
+    int band = (int)floor(mod(q[1] * bandFreq, 5.0));
+    color col0 = getPaletteColor(paletteIdx, band);
+    color col1 = getPaletteColor(paletteIdx, (band + 1) % 5);
+    return mix(col0, col1, smoothstep(0.0, 1.0, t));
+}
+
+// Concentric rings pattern
+color paintRings(vector q, int paletteIdx, float ringFreq, vector center) {
+    float r = length(vector(q[0] - center[0], q[1] - center[1], 0.0));
+    float t = mod(r * ringFreq, 1.0);
+    int ring = (int)floor(mod(r * ringFreq, 5.0));
+    color col0 = getPaletteColor(paletteIdx, ring);
+    color col1 = getPaletteColor(paletteIdx, (ring + 1) % 5);
+    return mix(col0, col1, smoothstep(0.0, 1.0, t));
+}
+
+// Noise-based organic pattern
+color paintNoiseOrganic(vector q, int paletteIdx, float noiseScale) {
+    // Simple pseudo-noise using sin combinations
+    float n1 = sin(q[0] * noiseScale * 7.3 + q[1] * noiseScale * 3.7);
+    float n2 = sin(q[0] * noiseScale * 2.1 - q[1] * noiseScale * 5.9);
+    float n3 = sin(q[0] * noiseScale * 4.7 + q[1] * noiseScale * 8.3);
+    float n = (n1 + n2 * 0.5 + n3 * 0.25) / 1.75;
+    n = n * 0.5 + 0.5;  // Map to [0,1]
+    
+    int idx = (int)floor(n * 4.99);
+    float t = mod(n * 5.0, 1.0);
+    color col0 = getPaletteColor(paletteIdx, idx);
+    color col1 = getPaletteColor(paletteIdx, (idx + 1) % 5);
+    return mix(col0, col1, smoothstep(0.0, 1.0, t));
+}
+
+///////////////////////////////////////////////////////////////////////
+////  MAIN SHADER: Paint Color Maps                                  //
+///////////////////////////////////////////////////////////////////////
+
+shader Mixwell_PaintColorMaps(
+    // Input position
+    vector pMixwell = 0
+        [[ string label = "pMixwell",
+           string help = "Input 2D Mixwell position (displaced)" ]],
+    
+    // Pattern selection
+    int patternType = 0
+        [[ string label = "Pattern Type",
+           string widget = "mapper",
+           string options = "Blobs:0|Chocolate:1|Stripes:2|Checkerboard:3|Gradient Bands:4|Concentric Rings:5|Noise Organic:6" ]],
+    
+    // Palette selection
+    int paletteType = 0
+        [[ string label = "Color Palette",
+           string widget = "mapper",
+           string options = "Golden Meadow:0|Brown Blue:1|Classic:2|Ocean:3|Sunset:4|Monochrome:5|Earth:6" ]],
+    
+    // Pattern-specific parameters
+    float blobScale = 1.0
+        [[ string label = "Blob Scale",
+           string help = "Scale factor for blob pattern (larger = bigger blobs)",
+           float min = 0.1,
+           float max = 5.0 ]],
+    float stripeFreq = 6.0
+        [[ string label = "Stripe Frequency",
+           string help = "Frequency of stripes",
+           float min = 1.0,
+           float max = 50.0 ]],
+    float checkerSize = 0.1
+        [[ string label = "Checker Size",
+           string help = "Size of checkerboard cells",
+           float min = 0.01,
+           float max = 1.0 ]],
+    float bandFreq = 3.0
+        [[ string label = "Band Frequency",
+           string help = "Frequency of gradient bands",
+           float min = 0.5,
+           float max = 20.0 ]],
+    float ringFreq = 5.0
+        [[ string label = "Ring Frequency",
+           string help = "Frequency of concentric rings",
+           float min = 1.0,
+           float max = 30.0 ]],
+    float ringCenterX = 0.5
+        [[ string label = "Ring Center X",
+           float min = -5.0,
+           float max = 5.0 ]],
+    float ringCenterY = 0.5
+        [[ string label = "Ring Center Y",
+           float min = -5.0,
+           float max = 5.0 ]],
+    float noiseScale = 3.0
+        [[ string label = "Noise Scale",
+           string help = "Scale of organic noise pattern",
+           float min = 0.5,
+           float max = 20.0 ]],
+    
+    // Outputs
+    output color outColor = 0
+        [[ string label = "Output Color" ]],
+    output float outLuminance = 0
+        [[ string label = "Luminance" ]]
+)
+{
+    color col;
+    
+    if (patternType == 0) {
+        col = paintBlobsWithPalette(pMixwell, paletteType, blobScale);
+    } 
+    else if (patternType == 1) {
+        col = paintChocolate(pMixwell);
+    } 
+    else if (patternType == 2) {
+        col = paintStripes(pMixwell, paletteType, stripeFreq);
+    } 
+    else if (patternType == 3) {
+        col = paintCheckerboard(pMixwell, checkerSize, paletteType);
+    } 
+    else if (patternType == 4) {
+        col = paintGradientBands(pMixwell, paletteType, bandFreq);
+    }
+    else if (patternType == 5) {
+        vector center = vector(ringCenterX, ringCenterY, 0.0);
+        col = paintRings(pMixwell, paletteType, ringFreq, center);
+    }
+    else {
+        col = paintNoiseOrganic(pMixwell, paletteType, noiseScale);
+    }
+    
+    outColor = col;
+    // Standard luminance calculation (Rec. 709)
+    outLuminance = 0.2126 * col[0] + 0.7152 * col[1] + 0.0722 * col[2];
+}

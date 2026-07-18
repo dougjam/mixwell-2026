@@ -1,0 +1,127 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Doug L. James and Ethan James
+
+///////////////////////////////////////////////////////////////////////
+////  Mixwell Nonpareil RDF Shader for Redshift OSL                  //
+////  Applies Nonpareil (noisy comb) reverse-drift to pMixwell       //
+////  @author Doug L James, 2026                                     //
+///////////////////////////////////////////////////////////////////////
+
+// Constants
+#define PI 3.14159265358979323846
+#define RDSEGMENT_MASK_R_FACTOR 10.0
+
+/*** UTILITIES ***/
+
+vector rot90(vector v) {
+    return vector(-v[1], v[0], 0.0);
+}
+
+float iqhash(float n) {
+    return mod(sin(n) * 43758.5453, 1.0);
+}
+
+/*** RDF CORE FUNCTIONS ***/
+
+// Line RDF: Matched series approximation to 1D drift.
+// Input: height above flow line, and cylinder radius, r.
+float rdLine1DS(float height, float r) {
+    float y = height / r;
+    float dx = 0.0;
+    float eps = 0.002;
+    y = sqrt(y * y + eps * eps);
+    
+    if (y > 6.50416858646776) {
+        float h = 1.0 / y;
+        float h2 = h * h;
+        float h3 = h * h2;
+        float poly = ((((6615.0 * h2 - 1960.0) * h2 + 600.0) * h2 - 192.0) * h2 + 64.0);
+        dx = -(PI / 256.0) * h3 * poly;
+    }
+    else if (y > 0.8220844420096408) {
+        float dy = y - 2.3;
+        float num = (((((-1.01973e-7 * dy + 1.77539e-6) * dy - 0.0068946) * dy - 0.043355) * dy - 0.0937878) * dy - 0.0413839);
+        float den = ((((((0.00875686 * dy + 0.115772) * dy + 0.665761) * dy + 2.08615) * dy + 3.66495) * dy + 3.26035) * dy + 1.0);
+        dx = num / den;
+    }
+    else {
+        float z = y * y;
+        float A = ((((0.00015811568 * z - 0.00096477622) * z + 0.0076619254) * z - 0.16369764) * z - 0.039720771);
+        float B = ((((-0.00018775463 * z + 0.0010681152) * z - 0.0073242188) * z + 0.09375) * z + 0.5);
+        dx = A + B * log(y);
+    }
+    return 2.0 * r * dx;
+}
+
+// RDF for Nonpareil pattern with comb gap noise.
+vector rdNonpareilNoisy(vector p, float r, vector dir_in, float combGap, float combGapNoise) {
+    vector dir = normalize(dir_in);
+    vector n = rot90(dir);
+    float y = dot(p, n);
+    float dyMax = r * RDSEGMENT_MASK_R_FACTOR + combGap;
+    int dkMax = (int)ceil(dyMax / combGap);
+    int k0 = (int)round(y / combGap);
+    vector rdf = vector(0.0, 0.0, 0.0);
+    for (int k = k0 - dkMax; k <= k0 + dkMax; k++) {
+        float noisek = 2.0 * iqhash((float)k) - 1.0;
+        float yk = combGap * (float)k + combGapNoise * noisek;
+        rdf += rdLine1DS(abs(y - yk), r) * dir;
+    }
+    return rdf;
+}
+
+///////////////////////////////////////////////////////////////////////
+////  MAIN SHADER: Nonpareil Pass                                    //
+///////////////////////////////////////////////////////////////////////
+
+shader Mixwell_Nonpareil(
+    // Input position
+    vector pMixwell_in = 0
+        [[ string label = "pMixwell In",
+           string help = "Input 2D Mixwell position" ]],
+    
+    // Nonpareil parameters
+    float tineRadius = 0.025
+        [[ string label = "Tine Radius",
+           string help = "Radius of combing tines",
+           float min = 0.001,
+           float max = 0.5 ]],
+    float angle = 90.0
+        [[ string label = "Angle (deg)",
+           string help = "Combing direction (90 = +Y direction)",
+           float min = 0.0,
+           float max = 360.0 ]],
+    float combGap = 0.015
+        [[ string label = "Comb Gap",
+           string help = "Spacing between tines",
+           float min = 0.001,
+           float max = 1.0 ]],
+    float gapNoise = 0.003
+        [[ string label = "Gap Noise",
+           string help = "Random variation in tine positions",
+           float min = 0.0,
+           float max = 0.1 ]],
+    
+    // Outputs
+    output vector pMixwell = 0
+        [[ string label = "pMixwell Out",
+           string help = "Output 2D Mixwell position with RDF applied" ]],
+    output vector displacement = 0
+        [[ string label = "Displacement",
+           string help = "RDF displacement vector from this pass" ]],
+    output float displacementMag = 0
+        [[ string label = "Displacement Magnitude" ]]
+)
+{
+    // Compute direction from angle
+    float ang = radians(angle);
+    vector dir = vector(cos(ang), sin(ang), 0.0);
+    
+    // Compute Nonpareil RDF
+    vector rdf = rdNonpareilNoisy(pMixwell_in, tineRadius, dir, combGap, gapNoise);
+    
+    // Output displaced position and displacement
+    pMixwell = pMixwell_in + rdf;
+    displacement = rdf;
+    displacementMag = length(rdf);
+}

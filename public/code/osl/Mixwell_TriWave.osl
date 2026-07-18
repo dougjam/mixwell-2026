@@ -1,0 +1,256 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Doug L. James and Ethan James
+
+///////////////////////////////////////////////////////////////////////
+////  Mixwell TriWave RDF Shader for Redshift OSL                    //
+////  Applies Triangle Wave comb reverse-drift to pMixwell           //
+////  Uses Mixwell Brush with adaptive midpoint integration          //
+////  @author Doug L James, 2026                                     //
+///////////////////////////////////////////////////////////////////////
+
+// Constants
+#define PI 3.14159265358979323846
+#define RDSEGMENT_MASK_R_FACTOR 10.0
+
+/*** UTILITIES ***/
+
+vector rot90(vector v) {
+    return vector(-v[1], v[0], 0.0);
+}
+
+/*** SDF ***/
+
+float sdSegment(vector p, vector a, vector b) {
+    vector pa = p - a;
+    vector ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return length(pa - ba * h);
+}
+
+/*** MIXWELL BRUSH FUNCTIONS ***/
+
+// Helper: 2x2 matrix-vector multiply
+vector mat2x2_mul(float m00, float m01, float m10, float m11, vector v) {
+    return vector(m00 * v[0] + m01 * v[1], m10 * v[0] + m11 * v[1], 0.0);
+}
+
+// Compute Mixwell brush matrix components for relative position v and radius eps
+void getMixwellBrushMatrixComponents(vector v, float eps, 
+                                      output float m00, output float m01, 
+                                      output float m10, output float m11) {
+    float R2 = dot(v, v);
+    float e2 = eps * eps;
+    float s = R2 + e2;
+    
+    float invSqrtS = 1.0 / sqrt(s);
+    float invS = invSqrtS * invSqrtS;
+    float invD = invS * invSqrtS;
+    
+    float invR = 1.0 / sqrt(max(R2, 1e-20));
+    float R = R2 * invR;
+    
+    float Afd = 1.0 - R * (R2 + 2.0 * e2) * invD;
+    float Bfd = e2 * invR * invD;
+    
+    float xx = Bfd * v[0] * v[0];
+    float xy = Bfd * v[0] * v[1];
+    float yy = Bfd * v[1] * v[1];
+    
+    m00 = Afd + xx;
+    m01 = xy;
+    m10 = xy;
+    m11 = Afd + yy;
+}
+
+// Reverse drift through Mixwell flow of radius-eps brush moving a→b.
+// Computed using adaptive midpoint integration.
+vector rdMixwellBrushAdaptiveMidpoint(vector p0, float eps, vector a, vector b) {
+    vector uBrush = a - b;
+    float L = length(uBrush);
+    if (L <= 1e-20)
+        return vector(0, 0, 0);
+    vector dir = uBrush / L;
+    float distLeft = L;
+    vector p = p0;
+    vector bCur = b;
+    
+    int maxIter = 200;
+    int iter = 0;
+    
+    while (distLeft > 0.0 && iter < maxIter) {
+        vector v = p - bCur;
+        float R = length(v);
+        float dL = min(distLeft, 0.10 * max(eps, R));
+        distLeft -= dL;
+        
+        vector db = dL * dir;
+        
+        // Euler step: dp = K(v) db
+        float m00, m01, m10, m11;
+        getMixwellBrushMatrixComponents(v, eps, m00, m01, m10, m11);
+        vector dp = mat2x2_mul(m00, m01, m10, m11, db);
+        
+        // Midpoint step: dp = K(vmid) db
+        vector vmid = v + 0.5 * (dp - db);
+        float mm00, mm01, mm10, mm11;
+        getMixwellBrushMatrixComponents(vmid, eps, mm00, mm01, mm10, mm11);
+        vector dpmid = mat2x2_mul(mm00, mm01, mm10, mm11, db);
+        
+        p += dpmid;
+        bCur += db;
+        iter++;
+    }
+    return p - p0;
+}
+
+// Reverse drift for line segment (a→b) using Mixwell Brush of radius r
+vector rdSegmentMBrush(vector p, float r, vector a, vector b) {
+    return rdMixwellBrushAdaptiveMidpoint(p, r, a, b);
+}
+
+// Segment RDF with distance-based masking for efficiency
+vector rdSegment(vector p, float r, vector a, vector b) {
+    float d = sdSegment(p, a, b);
+    float dMax = RDSEGMENT_MASK_R_FACTOR * r;
+    if (d >= dMax)
+        return vector(0.0, 0.0, 0.0);
+    float mask = 1.0 - smoothstep(0.5 * dMax, dMax, d);
+    return mask * rdSegmentMBrush(p, r, a, b);
+}
+
+// Segment RDF with optional reversal
+vector rdSegmentRev(vector p, float r, vector a, vector b, int reverse) {
+    vector head = (reverse != 0) ? b : a;
+    vector tail = (reverse != 0) ? a : b;
+    return rdSegment(p, r, head, tail);
+}
+
+/*** TRIANGLE WAVE RDF ***/
+
+// Single triangle wave RDF evaluation
+vector rdTriWave(vector p_in, float r, vector dir_in, float L, float A, int broken, int dashed) {
+    vector p = p_in;
+    vector p0 = p;
+    vector dir = normalize((broken != 0) ? -dir_in : dir_in);
+    
+    // Project p onto line → c and get coords for p as (x, y)
+    vector c = dot(p, dir) * dir;
+    float x = dot(c, dir);
+    float y = length(p - c);  // Unsigned distance to line
+    float segR = sqrt(A * A + L * L / 16.0);
+    float R = r * RDSEGMENT_MASK_R_FACTOR + segR;
+    
+    float H = L * 0.5;
+    float Rx = sqrt(max(R * R - y * y, 0.0));  // Influence "radius" about x on line
+    int iR = (int)ceil((x + Rx) / H);   // max i
+    int iL = (int)floor((x - Rx) / H);  // min i
+    
+    // Clamp iteration range for safety
+    iR = min(iR, iL + 50);
+    
+    vector vd = 0.5 * H * dir;
+    vector vp = A * rot90(dir);
+    
+    // Reverse sweep through segments
+    for (int i = iR; i >= iL; i--) {
+        float si = (abs(i) % 2 == 0) ? -1.0 : 1.0;  // -1 even | +1 odd
+        if ((dashed == 0) || (dashed != 0 && si < 0.0)) {
+            vector qi = dir * H * (float)i;
+            vector ai = qi - vd + si * vp;
+            vector bi = qi + vd - si * vp;
+            p += rdSegmentRev(p, r, ai, bi, broken);
+        }
+    }
+    
+    return p - p0;
+}
+
+// Triangle wave comb: multiple parallel triangle waves
+vector rdTriWaveComb(vector p, float r, vector dir_in, float L, float A, 
+                     int broken, int dashed, float combGap) {
+    vector dir = normalize(dir_in);
+    vector n = rot90(dir);
+    float y = dot(p, n);
+    float absA = abs(A);
+    float R = absA + r * RDSEGMENT_MASK_R_FACTOR;
+    int dk = (int)ceil(R / combGap);
+    int kp = (int)round(y / combGap);
+    
+    vector rdf = vector(0.0, 0.0, 0.0);
+    for (int k = kp - dk; k <= kp + dk; k++) {
+        float yk = (float)k * combGap;
+        vector pk = p - yk * n;
+        rdf += rdTriWave(pk, r, dir, L, A, broken, dashed);
+    }
+    return rdf;
+}
+
+///////////////////////////////////////////////////////////////////////
+////  MAIN SHADER: TriWave Pass                                      //
+///////////////////////////////////////////////////////////////////////
+
+shader Mixwell_TriWave(
+    // Input position
+    vector pMixwell_in = 0
+        [[ string label = "pMixwell In",
+           string help = "Input 2D Mixwell position" ]],
+    
+    // TriWave parameters
+    float tineRadius = 0.08
+        [[ string label = "Tine Radius",
+           string help = "Radius of combing tines",
+           float min = 0.001,
+           float max = 0.5 ]],
+    float angle = 0.0
+        [[ string label = "Angle (deg)",
+           string help = "Direction of wave travel (0 = +X direction)",
+           float min = 0.0,
+           float max = 360.0 ]],
+    float wavelength = 0.5
+        [[ string label = "Wavelength",
+           string help = "Length of one complete wave cycle",
+           float min = 0.05,
+           float max = 5.0 ]],
+    float amplitude = 0.125
+        [[ string label = "Amplitude",
+           string help = "Wave amplitude (negative for opposite phase)",
+           float min = -2.0,
+           float max = 2.0 ]],
+    int broken = 0
+        [[ string label = "Broken",
+           string widget = "checkBox",
+           string help = "Reverse segment direction for broken effect" ]],
+    int dashed = 0
+        [[ string label = "Dashed",
+           string widget = "checkBox",
+           string help = "Draw only every other segment" ]],
+    float combGap = 0.25
+        [[ string label = "Comb Gap",
+           string help = "Spacing between parallel waves (typically 2*amplitude)",
+           float min = 0.01,
+           float max = 2.0 ]],
+    
+    // Outputs
+    output vector pMixwell = 0
+        [[ string label = "pMixwell Out",
+           string help = "Output 2D Mixwell position with RDF applied" ]],
+    output vector displacement = 0
+        [[ string label = "Displacement",
+           string help = "RDF displacement vector from this pass" ]],
+    output float displacementMag = 0
+        [[ string label = "Displacement Magnitude" ]]
+)
+{
+    // Compute direction from angle
+    float ang = radians(angle);
+    vector dir = vector(cos(ang), sin(ang), 0.0);
+    
+    // Compute TriWave Comb RDF
+    vector rdf = rdTriWaveComb(pMixwell_in, tineRadius, dir, wavelength, amplitude,
+                               broken, dashed, combGap);
+    
+    // Output displaced position and displacement
+    pMixwell = pMixwell_in + rdf;
+    displacement = rdf;
+    displacementMag = length(rdf);
+}

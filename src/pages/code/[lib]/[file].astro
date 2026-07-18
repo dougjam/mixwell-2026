@@ -1,0 +1,103 @@
+---
+import Base from '../../../layouts/Base.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import { withBase } from '../../../lib/paths';
+import { libraries, githubBlobUrl } from '../../../lib/data';
+import { getSource, fileSlug } from '../../../lib/source';
+import type { Library, LibraryFile } from '../../../lib/data';
+
+// One page per released source file. Paths come from libraries.yaml, and the
+// source is read from public/<dir>/ at build time, so the page always matches
+// the file that ships for download.
+export async function getStaticPaths() {
+  const paths = [];
+  for (const lib of libraries) {
+    const libSeg = lib.dir.split('/').pop();
+    for (const file of lib.files ?? []) {
+      const source = getSource(`${lib.dir}/${file.name}`);
+      if (!source) continue; // listed but not present: skip rather than break the build
+      paths.push({
+        params: { lib: libSeg, file: fileSlug(file.name) },
+        props: { lib, file, source },
+      });
+    }
+  }
+  return paths;
+}
+
+interface Props {
+  lib: Library;
+  file: LibraryFile;
+  source: string;
+}
+
+const { lib, file, source } = Astro.props;
+const publicPath = `${lib.dir}/${file.name}`;
+---
+
+<Base title={file.name} description={file.description}>
+  <div class="container">
+    <article class="src">
+      <p class="eyebrow">
+        <a href={withBase('/code')}>Code &amp; Libraries</a>
+      </p>
+      <h1 class="src__title">{file.name}</h1>
+      <div class="src__meta">
+        <span class="badge">{lib.languageLabel}</span>
+        <span class="badge">{file.role}</span>
+      </div>
+      <p class="src__desc prose muted">{file.description}</p>
+
+      <div class="src__links">
+        <a href={withBase(`/${publicPath}`)} download>Download</a>
+        <a href={githubBlobUrl(publicPath)} target="_blank" rel="noopener noreferrer">
+          View or edit on GitHub ↗
+        </a>
+      </div>
+
+      <div class="src__code">
+        <CodeBlock code={source.trimEnd()} lang={lib.language} />
+      </div>
+
+      <p class="src__foot muted">
+        Part of <a href={withBase('/code')}>{lib.name}</a>. Released under the MIT license.
+      </p>
+    </article>
+  </div>
+</Base>
+
+<style>
+  .src {
+    margin-block: var(--space-8);
+  }
+  .src__title {
+    font-family: var(--font-mono);
+    font-size: var(--step-2);
+    margin-bottom: var(--space-3);
+    overflow-wrap: anywhere;
+  }
+  .src__meta {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+  }
+  .src__desc {
+    margin-top: 0;
+  }
+  .src__links {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: var(--step--1);
+    font-weight: 550;
+    margin-bottom: var(--space-6);
+  }
+  .src__code :global(pre) {
+    max-height: none;
+  }
+  .src__foot {
+    margin-top: var(--space-6);
+    font-size: var(--step--1);
+  }
+</style>

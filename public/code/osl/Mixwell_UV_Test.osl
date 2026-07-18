@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Doug L. James and Ethan James
+
+///////////////////////////////////////////////////////////////////////
+////  Simple UV Test Shader for Redshift OSL                         //
+////  Use this to verify OSL is working before testing Mixwell       //
+///////////////////////////////////////////////////////////////////////
+
+shader Mixwell_UV_Test(
+    float uvScale = 1.0
+        [[ string label = "UV Scale" ]],
+    float gridLines = 10.0
+        [[ string label = "Grid Lines" ]],
+    
+    output color outColor = 0
+)
+{
+    float uu = u * uvScale;
+    float vv = v * uvScale;
+    
+    // Grid pattern
+    float gx = step(0.95, mod(uu * gridLines, 1.0));
+    float gy = step(0.95, mod(vv * gridLines, 1.0));
+    float grid = max(gx, gy);
+    
+    // UV gradient with grid overlay
+    outColor = color(mod(uu, 1.0), mod(vv, 1.0), 0.0) + color(grid, grid, grid);
+}

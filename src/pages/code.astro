@@ -1,27 +1,29 @@
 ---
 import Base from '../layouts/Base.astro';
-import CodeBlock from '../components/CodeBlock.astro';
-import WipBanner from '../components/WipBanner.astro';
-import { libraries, repoFolderUrl, siteConfig } from '../lib/data';
+import { withBase } from '../lib/paths';
+import { libraries, siteConfig, githubBlobUrl, githubTreeUrl } from '../lib/data';
+import { fileSlug } from '../lib/source';
+
+const licenseUrl = `${siteConfig.codeRepoUrl.replace(/\/+$/, '')}/blob/main/LICENSE`;
 ---
 
-<Base title="Code & Libraries" description="GLSL, HLSL, OSL, and OpenCL implementations of Mixwell.">
+<Base title="Code & Libraries" description="Open-source Mixwell shader implementations and Houdini assets.">
   <div class="container">
     <header class="section">
       <p class="eyebrow">Code</p>
       <h1>Code &amp; Libraries</h1>
       <p class="prose muted">
-        Drop-in implementations of the Mixwell brushes and Reverse-Drift Functions across
-        shading languages and DCC integrations. Each library lives in the <a href={siteConfig.codeRepoUrl} target="_blank" rel="noopener noreferrer"> public
-		code repository</a>; the snippets below show a minimal usage pattern.
+        Open-source implementations of the Mixwell brushes and Reverse-Drift Functions, released
+        under the <a href={licenseUrl} target="_blank" rel="noopener noreferrer">MIT license</a> and
+        free to use, including commercially. Every file below can be read here with syntax
+        highlighting, downloaded directly, or browsed on GitHub.
       </p>
     </header>
 
-    <WipBanner />
-
-    <div class="libs">
-      {
-        libraries.map((lib) => (
+    {
+      libraries.map((lib) => {
+        const libSeg = lib.dir.split('/').pop();
+        return (
           <section class="lib section" id={lib.id} aria-labelledby={`${lib.id}-h`}>
             <div class="lib__head">
               <div>
@@ -30,42 +32,127 @@ import { libraries, repoFolderUrl, siteConfig } from '../lib/data';
                 </h2>
                 <span class="badge">{lib.languageLabel}</span>
               </div>
-              <div class="lib__links">
-                <a
-                  class="btn"
-                  href={repoFolderUrl(lib.repoFolder)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View in repo ↗
-                </a>
-                {lib.download && (
-                  <a class="btn" href={lib.download} target="_blank" rel="noopener noreferrer">
-                    Download
-                  </a>
-                )}
-              </div>
+              <a
+                class="btn"
+                href={githubTreeUrl(lib.dir)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Browse on GitHub ↗
+              </a>
             </div>
-            <p class="lib__desc muted">{lib.description}</p>
-            <CodeBlock code={lib.snippet.trimEnd()} lang={lib.language} />
+
+            <p class="lib__desc prose muted">{lib.description}</p>
+            {lib.note && <p class="lib__note">{lib.note}</p>}
+
+            <ul class="files">
+              {lib.files.map((f) => (
+                <li class="file">
+                  <div class="file__head">
+                    <a class="file__name" href={withBase(`/${lib.dir}/${fileSlug(f.name)}`)}>
+                      {f.name}
+                    </a>
+                    <span class="badge file__role">{f.role}</span>
+                  </div>
+                  <p class="file__desc muted">{f.description}</p>
+                  <div class="file__links">
+                    <a href={withBase(`/${lib.dir}/${fileSlug(f.name)}`)}>View source</a>
+                    <a href={withBase(`/${lib.dir}/${f.name}`)} download>
+                      Download
+                    </a>
+                    <a
+                      href={githubBlobUrl(`${lib.dir}/${f.name}`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      GitHub ↗
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {lib.scene && (
+              <div class="scene">
+                <h3 class="scene__h">Houdini scene</h3>
+                {lib.scene.showTeaser && (
+                  <figure class="teaser-ref">
+                    <img
+                      src={withBase(`/${siteConfig.teaser.image}`)}
+                      alt="The teaser render: three marbled scarves on mannequins"
+                      loading="lazy"
+                    />
+                    <figcaption class="muted">
+                      The teaser render. (Left) Bouquet, (Middle) GelgitNonpareil, (Right)
+                      Feather.
+                    </figcaption>
+                  </figure>
+                )}
+                <p class="prose muted">{lib.scene.description}</p>
+                {lib.scene.note && (
+                  <p class="prose muted">
+                    {lib.scene.note}
+                    {lib.scene.assetUrl && (
+                      <>
+                        {' '}
+                        The models used in the paper are available separately:{' '}
+                        <a href={lib.scene.assetUrl} target="_blank" rel="noopener noreferrer">
+                          {lib.scene.assetLabel} ↗
+                        </a>
+                      </>
+                    )}
+                  </p>
+                )}
+                <div class="file__links">
+                  <a href={withBase(`/${lib.dir}/${lib.scene.file}`)} download>
+                    Download {lib.scene.file}
+                  </a>
+                  <a
+                    href={githubBlobUrl(`${lib.dir}/${lib.scene.file}`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub ↗
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {lib.images && lib.images.items.length > 0 && (
+              <div class="shots">
+                <h3 class="scene__h">{lib.images.heading}</h3>
+                <p class="prose muted">{lib.images.intro}</p>
+                <ul class:list={['graphs', `graphs--${lib.images.layout}`]}>
+                  {lib.images.items.map((g) => (
+                    <li class="graph">
+                      <a href={withBase(`/${g.full}`)} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={withBase(`/${g.thumb}`)}
+                          alt={`${g.title} node graph`}
+                          loading="lazy"
+                        />
+                      </a>
+                      <p class="graph__cap muted">{g.title}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
-        ))
-      }
-    </div>
+        );
+      })
+    }
+
   </div>
 </Base>
 
 <style>
-  .libs {
-    display: flex;
-    flex-direction: column;
-  }
   .lib {
     scroll-margin-top: 5rem;
     padding-block: var(--space-8);
     border-top: 1px solid var(--border);
   }
-  .lib:first-child {
+  .lib:first-of-type {
     border-top: none;
   }
   .lib__head {
@@ -79,13 +166,109 @@ import { libraries, repoFolderUrl, siteConfig } from '../lib/data';
   .lib__name {
     margin: 0 0 var(--space-2);
   }
-  .lib__links {
+  .lib__desc {
+    margin-top: 0;
+  }
+  .lib__note {
+    margin: 0 0 var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-left: 3px solid var(--border-strong);
+    background: var(--bg-subtle);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-muted);
+    font-size: var(--step--1);
+  }
+
+  /* File listing */
+  .files {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-6) 0 0;
+    border-top: 1px solid var(--border);
+  }
+  .file {
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .file__head {
     display: flex;
-    gap: var(--space-2);
+    align-items: center;
+    gap: var(--space-3);
     flex-wrap: wrap;
   }
-  .lib__desc {
-    max-width: var(--prose-width);
-    margin-top: 0;
+  .file__name {
+    font-family: var(--font-mono);
+    font-size: var(--step-0);
+    font-weight: 600;
+  }
+  .file__role {
+    font-size: var(--step--1);
+  }
+  .file__desc {
+    margin: var(--space-2) 0 var(--space-3);
+    /* No width cap: fill the content width and justify, like the rest of the
+       site's body copy. A narrow cap here is what made these wrap early. */
+    text-align: justify;
+    hyphens: auto;
+  }
+  .file__links {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: var(--step--1);
+    font-weight: 550;
+  }
+
+  /* Scene / screenshots sub-sections inside a library */
+  .scene,
+  .shots {
+    margin-top: var(--space-8);
+  }
+  .scene__h {
+    font-size: var(--step-1);
+    margin-bottom: var(--space-3);
+  }
+
+  /* Small inline reference to the teaser render */
+  .teaser-ref {
+    margin: 0 0 var(--space-6);
+    max-width: 620px;
+  }
+  .teaser-ref img {
+    width: 100%;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .teaser-ref figcaption {
+    margin-top: var(--space-2);
+    font-size: var(--step--1);
+  }
+
+  /* Graph screenshots (wide) */
+  .graphs {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-6) 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+  /* Portrait screenshots shouldn't stretch to full page width. */
+  .graphs--tall .graph {
+    max-width: 460px;
+  }
+  .graph img {
+    width: 100%;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-subtle);
+    transition: border-color 0.15s ease;
+  }
+  .graph a:hover img {
+    border-color: var(--accent);
+  }
+  .graph__cap {
+    margin: var(--space-2) 0 0;
+    font-size: var(--step--1);
   }
 </style>

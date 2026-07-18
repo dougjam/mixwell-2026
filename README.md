@@ -139,3 +139,17 @@ Every internal link and asset is routed through the `withBase()` helper in
   the corresponding data file; add explainers by adding an MDX file.
 - Keep committed images web-optimized; put anything large behind a Google Drive
   or Dropbox link in the config.
+
+## License
+
+Released code is MIT licensed — see [`LICENSE`](LICENSE) at the repo root, which
+covers every code library released here (currently the OSL library; GLSL, HLSL,
+and OpenCL to follow).
+
+When adding a new source file, give it the same two-line header, so the license
+travels with the file if someone copies it out of the repo:
+
+```
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Doug L. James and Ethan James
+```

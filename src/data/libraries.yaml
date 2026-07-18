@@ -1,86 +1,158 @@
 # =============================================================================
-# Code libraries
+# Code page content (/code)
 # =============================================================================
-# One entry per library shown on the /code page. `repoFolder` is a path RELATIVE
-# to the code repository root (config `codeRepoUrl`); it is joined automatically,
-# so if the repo is renamed you only change the URL in site.config.yaml.
+# One entry per released library. Each entry owns everything shown in its
+# section: the source `files`, an optional Houdini `scene`, and optional
+# `images` (screenshots of the node graphs).
 #
-# `snippet` is a short usage example shown with syntax highlighting and a copy
-# button. `language` is the highlighter grammar (e.g. glsl, hlsl, c, cpp).
-# `download` is an optional direct download URL (leave null if none).
+# Source files are read from `public/<dir>/` at build time, so the highlighted
+# pages on the site always match the files in the repo. Edit a file on GitHub
+# and the site updates on the next deploy.
 #
-# NOTE: the exact repo folder paths below are best-effort. Verify them against
-# the published repository layout and correct as needed.
+# To add a file:    drop it in `public/<dir>/` and add an entry under `files`.
+# To add a library: copy a block below, create `public/code/<name>/`, and give
+#                   each new source file the MIT SPDX header (see README).
+#
+# images.layout: "wide" stacks full-width (panoramic graphs);
+#                "tall" constrains the width (portrait screenshots).
 # =============================================================================
 
 libraries:
+  - id: osl
+    name: "Mixwell OSL for Houdini and Redshift"
+    languageLabel: "OSL"
+    language: "c" # Shiki grammar used for highlighting (OSL is C-like)
+    dir: "code/osl" # under public/ — also the download path
+    description: >-
+      An Open Shading Language implementation of the Mixwell brushes and
+      Reverse-Drift Functions, used to render the paper's marbling results in
+      Houdini with Redshift. Wire the nodes up in a Redshift Material Builder:
+      a UV-to-position node produces the 2D Mixwell position, one or more RDF
+      passes reverse-drift that position, and a color-map node samples the paint
+      pattern at the end. RDF passes compose, so stacking them builds up complex
+      patterns without any intermediate texture resampling.
+    files:
+      - name: "Mixwell_UVtoPosition.osl"
+        role: "Entry point"
+        description: "Maps UV coordinates to the 2D Mixwell position (pMixwell) that every later node consumes, with scale and offset controls."
+      - name: "Mixwell_GelGit.osl"
+        role: "RDF pass"
+        description: "Applies Gel-Git (bidirectional comb) reverse-drift to pMixwell."
+      - name: "Mixwell_Nonpareil.osl"
+        role: "RDF pass"
+        description: "Applies Nonpareil (noisy comb) reverse-drift, with per-tine gap noise."
+      - name: "Mixwell_TriWave.osl"
+        role: "RDF pass"
+        description: "Applies a triangle-wave comb reverse-drift, using the Mixwell brush with adaptive midpoint integration."
+      - name: "Mixwell_PaintColorMaps.osl"
+        role: "Output"
+        description: "Samples the paint pattern at the drifted pMixwell position. Supports several patterns and color palettes."
+      - name: "Mixwell_UV_Test.osl"
+        role: "Utility"
+        description: "A minimal UV/grid shader to confirm OSL is working in your Redshift setup before wiring up Mixwell."
+    scene:
+      file: "scarvesWeb.hipnc"
+      showTeaser: true
+      description: >-
+        The Houdini scene used to stage the teaser render, showing how the shot
+        was assembled and how the Mixwell OSL materials are applied.
+      note: >-
+        The artist's scarf models are not included in this public release, so the
+        scene will not render as-is.
+      assetLabel: "Russian Scarves (TurboSquid)"
+      assetUrl: "https://www.turbosquid.com/3d-models/russian-scarves-3d-model-1194527"
+    images:
+      heading: "Redshift Material Builder graphs"
+      layout: "wide"
+      intro: >-
+        These are the shader graphs behind the three scarves in the teaser image,
+        left to right. Each one wires the OSL nodes above into a Redshift Material
+        Builder: a UV-to-position node feeds one or more RDF passes, and a
+        color-map node samples the paint pattern at the end. Click a graph to view
+        it full size.
+      items:
+        - id: bouquet
+          title: "Bouquet"
+          thumb: "images/redshift-graphs/bouquet-thumb.webp"
+          full: "images/redshift-graphs/bouquet.webp"
+        - id: gelgit-nonpareil
+          title: "GelgitNonpareil"
+          thumb: "images/redshift-graphs/gelgit-nonpareil-thumb.webp"
+          full: "images/redshift-graphs/gelgit-nonpareil.webp"
+        - id: feather
+          title: "Feather"
+          thumb: "images/redshift-graphs/feather-thumb.webp"
+          full: "images/redshift-graphs/feather.webp"
+
   - id: glsl
     name: "Mixwell GLSL"
     languageLabel: "GLSL"
     language: "glsl"
-    description: "Real-time GLSL implementation of the Mixwell brushes and Reverse-Drift Functions for WebGL/OpenGL fragment shaders."
-    repoFolder: "GLSL"
-    download: null
-    snippet: |
-      // Evaluate the Reverse-Drift Function for one tine and sample the source.
-      #include "mixwell.glsl"
+    dir: "code/glsl"
+    description: >-
+      A GLSL implementation of the Mixwell brushes and Reverse-Drift Functions,
+      for WebGL and OpenGL shader environments. Like the full HLSL library, it
+      includes both the brush and the Newton solver.
+    files:
+      - name: "Mixwell.glsl"
+        role: "Full library"
+        description: "The complete Mixwell library: brushes, particle drift, Reverse-Drift Functions, and the Newton solver."
 
-      vec2 uv = rdfTine(fragUV, tineCenter, tineRadius, driftAmount);
-      vec3 color = texture(uSource, uv).rgb;
-
-  - id: hlsl-mixwell
+  - id: hlsl
     name: "Mixwell HLSL"
     languageLabel: "HLSL"
     language: "hlsl"
-    description: "Full HLSL port of Mixwell for DirectX / real-time engines."
-    repoFolder: "HLSL/Mixwell"
-    download: null
-    snippet: |
-      // Chain two RDFs, then sample.
-      #include "Mixwell.hlsl"
-
-      float2 uv = RdfTine(fragUV, tineA, radiusA, driftA);
-      uv        = RdfTine(uv,     tineB, radiusB, driftB);
-      float3 color = Source.Sample(LinearClamp, uv).rgb;
-
-  - id: hlsl-mixwelllite
-    name: "MixwellLite HLSL"
-    languageLabel: "HLSL"
-    language: "hlsl"
-    description: "A lighter-weight HLSL variant with a reduced feature set for constrained shading budgets."
-    repoFolder: "HLSL/MixwellLite"
-    download: null
-    snippet: |
-      // MixwellLite exposes a single compact brush entry point.
-      #include "MixwellLite.hlsl"
-
-      float2 uv = MixwellLiteBrush(fragUV, tineCenter, tineRadius, driftAmount);
-      float3 color = Source.Sample(LinearClamp, uv).rgb;
-
-  - id: osl
-    name: "Mixwell OSL (Houdini / Redshift)"
-    languageLabel: "OSL"
-    language: "c"
-    description: "Open Shading Language implementation for production integration in Houdini and Redshift."
-    repoFolder: "OSL"
-    download: null
-    snippet: |
-      // OSL shader node: displace the lookup coordinate with an RDF, then read.
-      #include "mixwell.osl"
-
-      point p = rdf_tine(P, tine_center, tine_radius, drift_amount);
-      Cout = texture(source_map, p[0], p[1]);
+    dir: "code/hlsl"
+    description: >-
+      HLSL implementations of the Mixwell brushes and Reverse-Drift Functions,
+      for real-time engines and shader toolchains. Two variants are provided: the
+      full library, and a much lighter brush-only build for when you do not need
+      the Newton solver.
+    note: >-
+      An application demonstrating periodicity-exploiting evaluation with these
+      shaders is coming soon.
+    files:
+      - name: "Mixwell.hlsl"
+        role: "Full library"
+        description: "The complete Mixwell library: brushes, particle drift, Reverse-Drift Functions, and the Newton solver."
+      - name: "MixwellBrush.hlsl"
+        role: "Lite library"
+        description: "Brush only, with the Newton solver removed. A much lighter drop-in when you just need the Mixwell brush."
 
   - id: opencl
-    name: "Mixwell OpenCL (Houdini Copernicus)"
+    name: "Mixwell OpenCL for Houdini"
     languageLabel: "OpenCL"
-    language: "c"
-    description: "OpenCL kernels for GPU evaluation inside Houdini's Copernicus (COPs) image workflow."
-    repoFolder: "OpenCL"
-    download: null
-    snippet: |
-      // Copernicus kernel: evaluate the RDF per pixel and gather the source.
-      #include "mixwell.cl"
-
-      float2 uv = rdf_tine(frag_uv, tine_center, tine_radius, drift_amount);
-      float4 color = read_imagef(source, sampler, uv);
+    language: "c" # OpenCL C highlights well with the C grammar
+    dir: "code/opencl"
+    description: >-
+      The Mixwell function library in OpenCL, for GPU evaluation inside Houdini
+      Copernicus. It provides the brush, particle-drift, and Reverse-Drift
+      Function routines (plus the math helpers they rely on) that the Houdini
+      project below uses to build its patterns.
+    files:
+      - name: "Mixwell.cl"
+        role: "Kernel library"
+        description: "The full Mixwell library: brushes, particle drift, and Reverse-Drift Functions, along with the math helpers they depend on."
+    scene:
+      file: "hmarbleWeb.hipnc"
+      showTeaser: false
+      description: >-
+        A Houdini project containing worked examples for many of the patterns and
+        figures from the paper. Each example is a COP network built with Houdini
+        Copernicus, with the OpenCL node that runs the Mixwell kernels sitting
+        inside the COP network.
+      note: null
+      assetLabel: null
+      assetUrl: null
+    images:
+      heading: "Houdini network"
+      layout: "tall"
+      intro: >-
+        The node network inside the project file, showing the Copernicus COP
+        networks and the OpenCL node that evaluates the Mixwell kernels. Click to
+        view it full size.
+      items:
+        - id: hmarble-nodes
+          title: "hmarbleWeb.hipnc node network"
+          thumb: "images/houdini/hmarble-nodes.webp"
+          full: "images/houdini/hmarble-nodes.webp"

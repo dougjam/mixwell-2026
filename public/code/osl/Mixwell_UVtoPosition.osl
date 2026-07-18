@@ -1,0 +1,70 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Doug L. James and Ethan James
+
+///////////////////////////////////////////////////////////////////////
+////  Mixwell UV-to-Position Shader for Redshift OSL                 //
+////  Maps UV coordinates to 2D Mixwell position (pMixwell)          //
+////  @author Doug L James, 2026                                     //
+///////////////////////////////////////////////////////////////////////
+
+shader Mixwell_UVtoPosition(
+    // UV Scale and Offset
+    float uvScale = 2.0
+        [[ string label = "UV Scale",
+           string help = "Scale factor from UV [0,1] to physical coordinates",
+           float min = 0.1,
+           float max = 20.0 ]],
+    float uvOffsetX = 0.0
+        [[ string label = "UV Offset X",
+           string help = "Horizontal offset applied before scaling",
+           float min = -10.0,
+           float max = 10.0 ]],
+    float uvOffsetY = 0.0
+        [[ string label = "UV Offset Y",
+           string help = "Vertical offset applied before scaling",
+           float min = -10.0,
+           float max = 10.0 ]],
+    
+    // Optional rotation
+    float rotation = 0.0
+        [[ string label = "Rotation (deg)",
+           string help = "Rotation angle applied after scaling",
+           float min = 0.0,
+           float max = 360.0 ]],
+    
+    // Optional aspect ratio correction
+    float aspectRatio = 1.0
+        [[ string label = "Aspect Ratio",
+           string help = "X/Y aspect ratio correction (1.0 = square)",
+           float min = 0.1,
+           float max = 10.0 ]],
+    
+    // Outputs
+    output vector pMixwell = 0
+        [[ string label = "pMixwell",
+           string help = "2D Mixwell position coordinate" ]],
+    output float pMixwell_x = 0
+        [[ string label = "pMixwell.x" ]],
+    output float pMixwell_y = 0
+        [[ string label = "pMixwell.y" ]]
+)
+{
+    // Apply offset, then scale
+    float px = (u + uvOffsetX) * uvScale * aspectRatio;
+    float py = (v + uvOffsetY) * uvScale;
+    
+    // Apply rotation if specified
+    if (rotation != 0.0) {
+        float ang = radians(rotation);
+        float c = cos(ang);
+        float s = sin(ang);
+        float rx = c * px - s * py;
+        float ry = s * px + c * py;
+        px = rx;
+        py = ry;
+    }
+    
+    pMixwell = vector(px, py, 0.0);
+    pMixwell_x = px;
+    pMixwell_y = py;
+}

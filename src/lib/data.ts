@@ -77,15 +77,49 @@ export interface ShaderEntry {
   embedUrl?: string;
 }
 
+export interface LibraryFile {
+  name: string;
+  role: string;
+  description: string;
+}
+
+export interface HoudiniScene {
+  file: string;
+  showTeaser: boolean;
+  description: string;
+  note: string | null;
+  assetLabel: string | null;
+  assetUrl: string | null;
+}
+
+export interface GraphShot {
+  id: string;
+  title: string;
+  thumb: string;
+  full: string;
+}
+
+export interface LibraryImages {
+  heading: string;
+  /** "wide" stacks full-width; "tall" constrains the width. */
+  layout: 'wide' | 'tall';
+  intro: string;
+  items: GraphShot[];
+}
+
 export interface Library {
   id: string;
   name: string;
   languageLabel: string;
   language: string;
+  /** Folder under public/ holding the source files (also the download path). */
+  dir: string;
   description: string;
-  repoFolder: string;
-  download: string | null;
-  snippet: string;
+  /** Optional aside shown under the description (e.g. "demo coming soon"). */
+  note?: string | null;
+  files: LibraryFile[];
+  scene?: HoudiniScene | null;
+  images?: LibraryImages | null;
 }
 
 export interface GalleryItem {
@@ -113,12 +147,16 @@ export const gallery: GalleryItem[] =
 
 // --- Derived helpers ---------------------------------------------------------
 
-/** Join a library's repo-relative folder to the configured code repo URL. */
-export function repoFolderUrl(repoFolder: string): string {
+/** GitHub URL for viewing/editing a file that lives under public/. */
+export function githubBlobUrl(publicPath: string): string {
   const base = siteConfig.codeRepoUrl.replace(/\/+$/, '');
-  const folder = repoFolder.replace(/^\/+/, '');
-  // GitHub browses folders under /tree/main/<folder>.
-  return `${base}/tree/main/${folder}`;
+  return `${base}/blob/main/public/${publicPath.replace(/^\/+/, '')}`;
+}
+
+/** GitHub URL for browsing a folder that lives under public/. */
+export function githubTreeUrl(publicDir: string): string {
+  const base = siteConfig.codeRepoUrl.replace(/\/+$/, '');
+  return `${base}/tree/main/public/${publicDir.replace(/^\/+/, '')}`;
 }
 
 /** Derive a Shadertoy embed URL from a view URL if no explicit embed is set. */
