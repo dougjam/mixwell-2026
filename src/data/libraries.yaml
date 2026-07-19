@@ -90,13 +90,17 @@ libraries:
     language: "glsl"
     dir: "code/glsl"
     description: >-
-      A GLSL implementation of the Mixwell brushes and Reverse-Drift Functions,
-      for WebGL and OpenGL shader environments. Like the full HLSL library, it
-      includes both the brush and the Newton solver.
+      GLSL implementations of the Mixwell brushes and Reverse-Drift Functions,
+      for WebGL and OpenGL shader environments. Two variants are provided: the
+      full library, and a much lighter brush-only build for when you do not need
+      the Newton solver.
     files:
       - name: "Mixwell.glsl"
         role: "Full library"
         description: "The complete Mixwell library: brushes, particle drift, Reverse-Drift Functions, and the Newton solver."
+      - name: "MixwellBrush.glsl"
+        role: "Lite library"
+        description: "Brush only, with the Newton solver removed. A much lighter drop-in when you just need the Mixwell brush."
 
   - id: hlsl
     name: "Mixwell HLSL"
@@ -128,11 +132,16 @@ libraries:
       The Mixwell function library in OpenCL, for GPU evaluation inside Houdini
       Copernicus. It provides the brush, particle-drift, and Reverse-Drift
       Function routines (plus the math helpers they rely on) that the Houdini
-      project below uses to build its patterns.
+      project below uses to build its patterns. Two variants are provided: the
+      full library, and a much lighter brush-only build for when you do not need
+      the Newton solver.
     files:
       - name: "Mixwell.cl"
         role: "Kernel library"
         description: "The full Mixwell library: brushes, particle drift, and Reverse-Drift Functions, along with the math helpers they depend on."
+      - name: "MixwellBrush.cl"
+        role: "Lite library"
+        description: "Brush only, with the Newton solver removed. A much lighter drop-in when you just need the Mixwell brush."
     scene:
       file: "hmarbleWeb.hipnc"
       showTeaser: false

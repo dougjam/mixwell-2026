@@ -2,10 +2,9 @@
 // Copyright (c) 2026 Doug L. James and Ethan James
 
 ///////////////////////////////////////////////////////////////////////
-////  Mixwell Library Functions /// @author Doug L James, 2025 ////////
+////  Mixwell Library Functions /// @author Doug L James, 2026 ////////
 ///////////////////////////////////////////////////////////////////////
 
-#define TWO_PI   6.28318530718f // 2π // NEW
 #define PI       3.14159265358979323846f // π
 #define PI_2     1.57079632679489661923f // π/2
 
@@ -15,15 +14,15 @@ __constant float RDSEGMENT_MASK_R_FACTOR = 10.0f;
 __attribute__((overloadable)) float fract(float x) {
     return x - floor(x);
 }
-// __attribute__((overloadable)) float2 fract(float2 x) {
-//     return (float2)(fract(x.x), fract(x.y));
-// }
-// __attribute__((overloadable)) float3 fract(float3 x) {
-//     return (float3)(fract(x.x), fract(x.y), fract(x.z));
-// }
-// __attribute__((overloadable)) float4 fract(float4 x) {
-//     return (float4)(fract(x.x), fract(x.y), fract(x.z), fract(x.w));
-// }
+__attribute__((overloadable)) float2 fract(float2 x) {
+    return (float2)(fract(x.x), fract(x.y));
+}
+__attribute__((overloadable)) float3 fract(float3 x) {
+    return (float3)(fract(x.x), fract(x.y), fract(x.z));
+}
+__attribute__((overloadable)) float4 fract(float4 x) {
+    return (float4)(fract(x.x), fract(x.y), fract(x.z), fract(x.w));
+}
 
 // Euclidean mod // NEW
 float  emod (float  x, float  n){    return fract(x / n) * n;}
@@ -148,14 +147,14 @@ float3 paintCheckerboard(float2 q, float h) // NEW
     return (float3)((cell.x + cell.y) & 1);
 }
 
-float3 splatBlobRows(float2 p, float3 colBG, float3 colBlob, float HX, float HY, float dY, float blobRadius, float isOddRow) // NEW
+float3 splatBlobRows(float2 p, float3 colBG, float3 colBlob, float HX, float HY, float dY, float blobRadius, int isOddRow) // NEW
 {
     float Yoffset = (isOddRow) ? 0.5f * HY : 0.f;
 
     // SNAP p to closest horizontal row:
     float ySnap = Yoffset + round((p.y - Yoffset) / HY) * HY; // y of closest row
     p.y -= ySnap;
-    p.x -= sin(437.5453 * ySnap) * 437.5453; // SHIFT X per ROW
+    p.x -= sin(437.5453f * ySnap) * 437.5453f; // SHIFT X per ROW
 
     // STRING OF BLOBS ON y=0 AXIS:
     float F = 1239.f + ySnap; // nat freq for variation
@@ -192,14 +191,15 @@ float3 splatBlobRows(float2 p, float3 colBG, float3 colBlob, float HX, float HY,
     return mix(colBG, colBlob, reg);
 }
 
-__constant float3 palette01[6] =// NEW
+// 08088c,1f1170,1197f7,6119bf,ebfbfc,ffd4eb
+__constant float3 paletteBluePurple[6] =// NEW
 {
-    (float3)(0, 0, 1), // blue
-    (float3)(1, 0, 0), // red
-    (float3)(0, 1, 1), // cyan
-    (float3)(1, 1, 0), // yellow
-    (float3)(1, 1, 1), // white
-    (float3)(1, 1, 1), // white (duplicate)
+    (float3)(0.0313725, 0.0313725, 0.5490196),
+    (float3)(0.1215686, 0.0666667, 0.4392157),
+    (float3)(0.0666667, 0.5921569, 0.9686275),
+    (float3)(0.3803922, 0.0980392, 0.7490196),
+    (float3)(0.9215686, 0.9843137, 0.9882353),
+    (float3)(1.0000000, 0.8313725, 0.9215686),
 };
 //------------------------------------------------------------------------------
 // Palette 1: Coolors example (brown blue)
@@ -237,12 +237,12 @@ float3 paintBlobsWithPalette(float2 p, __constant float3 *palette)// NEW
     float blobRadius = 2.f * HX; // BLOB SIZE HINT FOR SMALLER BLOBS
 
     float3 col = (float3)(0, 0, 0); // Background
-    col = splatBlobRows(p, col, palette[0], HX, HY, dY, 2.f * HX, false);
-    col = splatBlobRows(p, col, palette[1], HX, HY, dY, 2.f * HX, true);
-    col = splatBlobRows(p, col, palette[2], HX, HY, dY, HX / 2., false);
-    col = splatBlobRows(p, col, palette[3], HX, HY, dY, HX / 3., true);
-    col = splatBlobRows(p, col, palette[4], HX, HY, dY, HX / 6., false);
-    col = splatBlobRows(p, col, palette[5], HX, HY, dY, HX / 7., true);
+    col = splatBlobRows(p, col, palette[0], HX, HY, dY, 2.f * HX, 0);
+    col = splatBlobRows(p, col, palette[1], HX, HY, dY, 2.f * HX, 1);
+    col = splatBlobRows(p, col, palette[2], HX, HY, dY, HX / 2.,  0);
+    col = splatBlobRows(p, col, palette[3], HX, HY, dY, HX / 3.,  1);
+    col = splatBlobRows(p, col, palette[4], HX, HY, dY, HX / 6.,  0);
+    col = splatBlobRows(p, col, palette[5], HX, HY, dY, HX / 7.,  1);
 
     return col;        
 }
@@ -259,7 +259,7 @@ float3 paintBlobs(float2 p) // NEW
 
 
 /*** [BEGIN] UTILITIES *******************************************/
-float2 rotate(float2 v, float theta) {
+__attribute__((overloadable)) float2 rotate(float2 v, float theta) {
     float c = cos(theta);
     float s = sin(theta);
     return (float2)(
@@ -280,7 +280,7 @@ float2 projectOutsideUnitDisk(float2 p) {
 }
 
 // Simple pseudorandom float-to-float[0,1] hash.  
-float iqhash(float n) { return fract(sin(n)*43758.5453); }
+float iqhash(float n) { return fract(sin(n)*43758.5453f); }
 
 /*** [END] UTILITIES *******************************************/
 
@@ -460,7 +460,7 @@ float mxwSigmaAt(float2 p) {
   float sigma   = asin(X/R);
 
   // REFLECT IF η<0: ensure π/2<|σ|<π
-  sigma = (Y < 0.0f) ? ((sigma >= 0.0f) ? (M_PI-sigma) : -(M_PI+sigma)) : sigma;
+  sigma = (Y < 0.0f) ? ((sigma >= 0.0f) ? (PI-sigma) : -(PI+sigma)) : sigma;
   return sigma;
 }
 
@@ -1429,7 +1429,13 @@ float2 rdTriWave(float2 p, float r, float2 dir, float L, float A, bool broken, b
     float  R    = r * RDSEGMENT_MASK_R_FACTOR + segR; // Bounding radius of point w.r.t. qi
     
     float  H  = L * 0.5f;
-    float  Rx = sqrt(R*R - y*y); // Influence "radius" about x on line
+    // Guard against a point outside the influence band (R*R - y*y < 0 -> sqrt is NaN) and a
+    // degenerate wavelength (H <= 0). Casting NaN/Inf to int for the loop bounds below is
+    // undefined behavior and can produce a runaway loop that hangs the GPU. Outside the band
+    // no segment contributes, so return zero drift.
+    float  disc = R*R - y*y;
+    if (disc <= 0.0f || H <= 0.0f) return (float2)(0.0f, 0.0f);
+    float  Rx = sqrt(disc); // Influence "radius" about x on line
     int    iR = (int)ceil ((x+Rx)/H); // max i
     int    iL = (int)floor((x-Rx)/H); // min i
 
@@ -1455,7 +1461,8 @@ float2 rdTriWaveComb(float2 p, float r, float2 dir, float L, float A, bool broke
   float2 n   = rot90(dir);
   float  y   = dot(p,n);
   float  R   = A + r * RDSEGMENT_MASK_R_FACTOR; // 1D perp-influence radius of a wave centerline
-  int    dk  = (int)ceil (R/combGap);// Conservative range of wave indices influencing p 
+  if (combGap <= 0.0f) return (float2)(0.0f, 0.0f); // degenerate spacing -> division below would be Inf (GPU hang)
+  int    dk  = (int)ceil (R/combGap);// Conservative range of wave indices influencing p
   int    kp  = (int)round(y/combGap);// Closest wave index (where origin wave is k=0)
   
   float2 rdf = (float2)(0.f);
@@ -1469,7 +1476,3 @@ float2 rdTriWaveComb(float2 p, float r, float2 dir, float L, float A, bool broke
 
 
 ///END/////////////////////////////////////////////////////////////////
-////  Mixwell Library Functions /// @author Doug L James, 2025 ////////
-///////////////////////////////////////////////////////////////////////
-
-

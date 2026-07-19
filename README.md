@@ -143,8 +143,7 @@ Every internal link and asset is routed through the `withBase()` helper in
 ## License
 
 Released code is MIT licensed — see [`LICENSE`](LICENSE) at the repo root, which
-covers every code library released here (currently the OSL library; GLSL, HLSL,
-and OpenCL to follow).
+covers every code library released here (OSL, GLSL, HLSL, and OpenCL).
 
 When adding a new source file, give it the same two-line header, so the license
 travels with the file if someone copies it out of the repo:

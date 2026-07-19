@@ -2,10 +2,9 @@
 // Copyright (c) 2026 Doug L. James and Ethan James
 
 ///////////////////////////////////////////////////////////////////////
-////  Mixwell Library Functions /// @author Doug L James, 2025 ////////
+////  Mixwell Library Functions /// @author Doug L James, 2026 ////////
 ///////////////////////////////////////////////////////////////////////
 
-static const float TWO_PI = 6.28318530718f; // 2π // NEW
 static const float PI = 3.14159265358979323846f; // π
 static const float PI_2 = 1.57079632679489661923f; // π/2
 
@@ -200,14 +199,14 @@ float3 splatBlobRows(float2 p, float3 colBG, float3 colBlob, float HX, float HY,
     return lerp(colBG, colBlob, reg);
 }
 
-static const float3 palette01[6] =// NEW
+static const float3 paletteBluePurple[6] =// NEW
 {
-    float3(0, 0, 1), // blue
-    float3(1, 0, 0), // red
-    float3(0, 1, 1), // cyan
-    float3(1, 1, 0), // yellow
-    float3(1, 1, 1), // white
-    float3(1, 1, 1), // white (duplicate)
+    float3(8, 8, 140) / 255.0f,
+    float3(31, 17, 112) / 255.0f,
+    float3(17, 151, 247) / 255.0f,
+    float3(97, 25, 191) / 255.0f,
+    float3(235, 251, 252) / 255.0f,
+    float3(255, 212, 235) / 255.0f,
 };
 //------------------------------------------------------------------------------
 // Palette 1: Coolors example (brown blue)
@@ -1521,7 +1520,14 @@ float2 rdTriWave(float2 p, float r, float2 dir, float L, float A, bool broken, b
     float R = r * RDSEGMENT_MASK_R_FACTOR + segR; // Bounding radius of point w.r.t. qi
 
     float H = L * 0.5f;
-    float Rx = sqrt(R * R - y * y); // Influence "radius" about x on line
+    // Guard against a point outside the influence band (R*R - y*y < 0 -> sqrt is NaN) and a
+    // degenerate wavelength (H <= 0). Casting NaN/Inf to int for the loop bounds below is
+    // undefined behavior; under WebGPU/Dawn it produces a runaway loop that hangs the GPU
+    // (DXGI_ERROR_DEVICE_HUNG). Outside the band no segment contributes, so return zero drift.
+    float disc = R * R - y * y;
+    if (disc <= 0.0f || H <= 0.0f)
+        return float2(0.0f, 0.0f);
+    float Rx = sqrt(disc); // Influence "radius" about x on line
     int iR = (int) ceil((x + Rx) / H); // max i
     int iL = (int) floor((x - Rx) / H); // min i
 
@@ -1549,6 +1555,8 @@ float2 rdTriWaveComb(float2 p, float r, float2 dir, float L, float A, bool broke
     float2 n = rot90(dir);
     float y = dot(p, n);
     float R = A + r * RDSEGMENT_MASK_R_FACTOR; // 1D perp-influence radius of a wave centerline
+    if (combGap <= 0.0f)
+        return float2(0.0f, 0.0f); // degenerate spacing -> division below would be Inf (GPU hang)
     int dk = (int) ceil(R / combGap); // Conservative range of wave indices influencing p
     int kp = (int) round(y / combGap); // Closest wave index (where origin wave is k=0)
 
@@ -1563,5 +1571,3 @@ float2 rdTriWaveComb(float2 p, float r, float2 dir, float L, float A, bool broke
 }
 
 /// END/////////////////////////////////////////////////////////////////
-////  Mixwell Library Functions /// @author Doug L James, 2025 ////////
-///////////////////////////////////////////////////////////////////////
