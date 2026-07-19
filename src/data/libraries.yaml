@@ -18,72 +18,6 @@
 # =============================================================================
 
 libraries:
-  - id: osl
-    name: "Mixwell OSL for Houdini and Redshift"
-    languageLabel: "OSL"
-    language: "c" # Shiki grammar used for highlighting (OSL is C-like)
-    dir: "code/osl" # under public/ — also the download path
-    description: >-
-      An Open Shading Language implementation of the Mixwell brushes and
-      Reverse-Drift Functions, used to render the paper's marbling results in
-      Houdini with Redshift. Wire the nodes up in a Redshift Material Builder:
-      a UV-to-position node produces the 2D Mixwell position, one or more RDF
-      passes reverse-drift that position, and a color-map node samples the paint
-      pattern at the end. RDF passes compose, so stacking them builds up complex
-      patterns without any intermediate texture resampling.
-    files:
-      - name: "Mixwell_UVtoPosition.osl"
-        role: "Entry point"
-        description: "Maps UV coordinates to the 2D Mixwell position (pMixwell) that every later node consumes, with scale and offset controls."
-      - name: "Mixwell_GelGit.osl"
-        role: "RDF pass"
-        description: "Applies Gel-Git (bidirectional comb) reverse-drift to pMixwell."
-      - name: "Mixwell_Nonpareil.osl"
-        role: "RDF pass"
-        description: "Applies Nonpareil (noisy comb) reverse-drift, with per-tine gap noise."
-      - name: "Mixwell_TriWave.osl"
-        role: "RDF pass"
-        description: "Applies a triangle-wave comb reverse-drift, using the Mixwell brush with adaptive midpoint integration."
-      - name: "Mixwell_PaintColorMaps.osl"
-        role: "Output"
-        description: "Samples the paint pattern at the drifted pMixwell position. Supports several patterns and color palettes."
-      - name: "Mixwell_UV_Test.osl"
-        role: "Utility"
-        description: "A minimal UV/grid shader to confirm OSL is working in your Redshift setup before wiring up Mixwell."
-    scene:
-      file: "scarvesWeb.hipnc"
-      showTeaser: true
-      description: >-
-        The Houdini scene used to stage the teaser render, showing how the shot
-        was assembled and how the Mixwell OSL materials are applied.
-      note: >-
-        The artist's scarf models are not included in this public release, so the
-        scene will not render as-is.
-      assetLabel: "Russian Scarves (TurboSquid)"
-      assetUrl: "https://www.turbosquid.com/3d-models/russian-scarves-3d-model-1194527"
-    images:
-      heading: "Redshift Material Builder graphs"
-      layout: "wide"
-      intro: >-
-        These are the shader graphs behind the three scarves in the teaser image,
-        left to right. Each one wires the OSL nodes above into a Redshift Material
-        Builder: a UV-to-position node feeds one or more RDF passes, and a
-        color-map node samples the paint pattern at the end. Click a graph to view
-        it full size.
-      items:
-        - id: bouquet
-          title: "Bouquet"
-          thumb: "images/redshift-graphs/bouquet-thumb.webp"
-          full: "images/redshift-graphs/bouquet.webp"
-        - id: gelgit-nonpareil
-          title: "GelgitNonpareil"
-          thumb: "images/redshift-graphs/gelgit-nonpareil-thumb.webp"
-          full: "images/redshift-graphs/gelgit-nonpareil.webp"
-        - id: feather
-          title: "Feather"
-          thumb: "images/redshift-graphs/feather-thumb.webp"
-          full: "images/redshift-graphs/feather.webp"
-
   - id: glsl
     name: "Mixwell GLSL"
     languageLabel: "GLSL"
@@ -165,3 +99,69 @@ libraries:
           title: "hmarbleWeb.hipnc node network"
           thumb: "images/houdini/hmarble-nodes.webp"
           full: "images/houdini/hmarble-nodes.webp"
+
+  - id: osl
+    name: "Mixwell OSL for Houdini and Redshift"
+    languageLabel: "OSL"
+    language: "c" # Shiki grammar used for highlighting (OSL is C-like)
+    dir: "code/osl" # under public/ — also the download path
+    description: >-
+      An Open Shading Language implementation of the Mixwell brushes and
+      Reverse-Drift Functions, used to render the paper's marbling results in
+      Houdini with Redshift. Wire the nodes up in a Redshift Material Builder:
+      a UV-to-position node produces the 2D Mixwell position, one or more RDF
+      passes reverse-drift that position, and a color-map node samples the paint
+      pattern at the end. RDF passes compose, so stacking them builds up complex
+      patterns without any intermediate texture resampling.
+    files:
+      - name: "Mixwell_UVtoPosition.osl"
+        role: "Entry point"
+        description: "Maps UV coordinates to the 2D Mixwell position (pMixwell) that every later node consumes, with scale and offset controls."
+      - name: "Mixwell_GelGit.osl"
+        role: "RDF pass"
+        description: "Applies Gel-Git (bidirectional comb) reverse-drift to pMixwell."
+      - name: "Mixwell_Nonpareil.osl"
+        role: "RDF pass"
+        description: "Applies Nonpareil (noisy comb) reverse-drift, with per-tine gap noise."
+      - name: "Mixwell_TriWave.osl"
+        role: "RDF pass"
+        description: "Applies a triangle-wave comb reverse-drift, using the Mixwell brush with adaptive midpoint integration."
+      - name: "Mixwell_PaintColorMaps.osl"
+        role: "Output"
+        description: "Samples the paint pattern at the drifted pMixwell position. Supports several patterns and color palettes."
+      - name: "Mixwell_UV_Test.osl"
+        role: "Utility"
+        description: "A minimal UV/grid shader to confirm OSL is working in your Redshift setup before wiring up Mixwell."
+    scene:
+      file: "scarvesWeb.hipnc"
+      showTeaser: true
+      description: >-
+        The Houdini scene used to stage the teaser render, showing how the shot
+        was assembled and how the Mixwell OSL materials are applied.
+      note: >-
+        The artist's scarf models are not included in this public release, so the
+        scene will not render as-is.
+      assetLabel: "Russian Scarves (TurboSquid)"
+      assetUrl: "https://www.turbosquid.com/3d-models/russian-scarves-3d-model-1194527"
+    images:
+      heading: "Redshift Material Builder graphs"
+      layout: "wide"
+      intro: >-
+        These are the shader graphs behind the three scarves in the teaser image,
+        left to right. Each one wires the OSL nodes above into a Redshift Material
+        Builder: a UV-to-position node feeds one or more RDF passes, and a
+        color-map node samples the paint pattern at the end. Click a graph to view
+        it full size.
+      items:
+        - id: bouquet
+          title: "Bouquet"
+          thumb: "images/redshift-graphs/bouquet-thumb.webp"
+          full: "images/redshift-graphs/bouquet.webp"
+        - id: gelgit-nonpareil
+          title: "GelgitNonpareil"
+          thumb: "images/redshift-graphs/gelgit-nonpareil-thumb.webp"
+          full: "images/redshift-graphs/gelgit-nonpareil.webp"
+        - id: feather
+          title: "Feather"
+          thumb: "images/redshift-graphs/feather-thumb.webp"
+          full: "images/redshift-graphs/feather.webp"

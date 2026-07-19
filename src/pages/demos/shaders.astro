@@ -19,11 +19,14 @@ import { shaders } from '../../lib/data';
     <section class="section" aria-label="Shaders">
       {
         shaders.length > 0 ? (
-          <CardGrid>
-            {shaders.map((entry) => (
-              <ShaderToyCard entry={entry} />
-            ))}
-          </CardGrid>
+          <Fragment>
+            <CardGrid>
+              {shaders.map((entry) => (
+                <ShaderToyCard entry={entry} />
+              ))}
+            </CardGrid>
+            <p class="shaders__more muted">More shaders coming soon.</p>
+          </Fragment>
         ) : (
           <p class="muted">Shaders will appear here soon.</p>
         )
@@ -31,3 +34,10 @@ import { shaders } from '../../lib/data';
     </section>
   </div>
 </Base>
+
+<style>
+  .shaders__more {
+    margin-top: var(--space-8);
+    text-align: center;
+  }
+</style>
