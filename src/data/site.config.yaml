@@ -83,7 +83,7 @@ links:
   paperPdf: "https://graphics.stanford.edu/~djames/wp-content/uploads/mixwell/mixwell-2026-paper.pdf"
   supplementalPdf: "https://graphics.stanford.edu/~djames/wp-content/uploads/mixwell/mixwell-2026-supplemental.pdf"
   supplementalVideoId: "FUzLs-V1KcE"     # paper video: https://www.youtube.com/watch?v=FUzLs-V1KcE
-  talkVideoId: null                      # TODO: YouTube ID (talk)
+  talkVideoId: "2dAXpTJAdZ4"             # talk video: https://youtu.be/2dAXpTJAdZ4
   codeRepo: "https://github.com/dougjam/Mixwell"
   data: null                             # TODO: Google Drive / Dropbox link (datasets, masters)
 
