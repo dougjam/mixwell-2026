@@ -8,48 +8,114 @@ interface Props {
 const { config } = Astro.props;
 const { links, doi, paperUrl } = config;
 
-// Each raw link is a URL, a site-relative asset path (e.g. a hosted PDF), or
+type LinkItem = {
+  label: string;
+  href: string | null;
+  icon: string;
+  sub?: string;
+  youtube?: boolean; // sub shows a YouTube badge
+};
+
+// The four headline resources, shown as prominent tiles.
+// Each raw href is a URL, a site-relative asset path (e.g. a hosted PDF), or
 // null. Null → disabled "coming soon" control.
-const rawItems: { label: string; href: string | null; icon: string }[] = [
-  { label: 'Paper', href: links.paperPdf, icon: '📄' },
-  { label: 'Supplement', href: links.supplementalPdf, icon: '📄' },
+// PDF sizes are the author-hosted Content-Length as of 2026-07-21 (decimal MB);
+// update if the files are re-uploaded.
+const featuredRaw: LinkItem[] = [
+  { label: 'Paper', href: links.paperPdf, icon: '📄', sub: 'PDF · 56 MB' },
+  { label: 'Supplement', href: links.supplementalPdf, icon: '📎', sub: 'PDF · 17 MB' },
   {
     label: 'Video',
     href: links.supplementalVideoId
       ? `https://www.youtube.com/watch?v=${links.supplementalVideoId}`
       : null,
     icon: '▶',
+    sub: 'Paper video',
+    youtube: true,
   },
   {
     label: 'Talk',
     href: links.talkVideoId ? `https://www.youtube.com/watch?v=${links.talkVideoId}` : null,
     icon: '🎤',
+    sub: 'SIGGRAPH 2026 talk',
+    youtube: true,
   },
+];
+
+// Secondary links, shown as smaller pill buttons below the tiles.
+const restRaw: LinkItem[] = [
   { label: 'ACM DL', href: paperUrl ?? (doi ? `https://doi.org/${doi}` : null), icon: '📚' },
 ];
 
 // Resolve: external URLs pass through; local asset paths get the base prefix.
 // Every resolved link opens in a new tab.
-const items = rawItems.map((item) => ({
+const resolve = (item: LinkItem) => ({
   ...item,
   resolved: item.href ? (isExternal(item.href) ? item.href : withBase(item.href)) : null,
-}));
+});
+const featured = featuredRaw.map(resolve);
+const rest = restRaw.map(resolve);
 ---
+
+<div class="primary-featured">
+  {
+    featured.map((item) =>
+      item.resolved ? (
+        <a class="link-card" href={item.resolved} target="_blank" rel="noopener noreferrer">
+          <span class="link-card__icon" aria-hidden="true">{item.icon}</span>
+          <span class="link-card__label">{item.label}</span>
+          {item.sub && (
+            <span class="link-card__sub">
+              {item.youtube && (
+                <svg class="yt-badge" viewBox="0 0 24 24" role="img" aria-label="YouTube">
+                  <path
+                    fill="#ff0000"
+                    d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8z"
+                  />
+                  <path fill="#fff" d="M9.5 15.5v-7l6 3.5-6 3.5z" />
+                </svg>
+              )}
+              {item.sub}
+            </span>
+          )}
+        </a>
+      ) : (
+        <span class="link-card link-card--disabled" aria-disabled="true" title="Coming soon">
+          <span class="link-card__icon" aria-hidden="true">{item.icon}</span>
+          <span class="link-card__label">
+            {item.label}
+            <span class="link-card__soon">soon</span>
+          </span>
+          {item.sub && (
+            <span class="link-card__sub">
+              {item.youtube && (
+                <svg class="yt-badge" viewBox="0 0 24 24" role="img" aria-label="YouTube">
+                  <path
+                    fill="#ff0000"
+                    d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8z"
+                  />
+                  <path fill="#fff" d="M9.5 15.5v-7l6 3.5-6 3.5z" />
+                </svg>
+              )}
+              {item.sub}
+            </span>
+          )}
+        </span>
+      )
+    )
+  }
+</div>
 
 <div class="primary-links">
   {
-    items.map((item) =>
+    rest.map((item) =>
       item.resolved ? (
         <a class="btn" href={item.resolved} target="_blank" rel="noopener noreferrer">
           <span aria-hidden="true">{item.icon}</span>
           {item.label}
         </a>
       ) : (
-        <span
-          class="btn"
-          aria-disabled="true"
-          title="Coming soon"
-        >
+        <span class="btn" aria-disabled="true" title="Coming soon">
           <span aria-hidden="true">{item.icon}</span>
           {item.label}
           <span class="primary-links__soon">soon</span>
@@ -60,19 +126,77 @@ const items = rawItems.map((item) => ({
 </div>
 
 <style>
-  .primary-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-block: var(--space-6);
+  .primary-featured {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--space-4);
+    margin-block: var(--space-6) var(--space-4);
   }
+  .link-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    color: inherit;
+    transition:
+      transform 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .link-card:hover {
+    text-decoration: none;
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+  .link-card--disabled {
+    opacity: 0.55;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .link-card__icon {
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+  .link-card__label {
+    font-size: var(--step-1);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+  .link-card__sub {
+    font-size: var(--step--1);
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+  .yt-badge {
+    width: 1.15em;
+    height: 1.15em;
+    flex: none;
+  }
+  .link-card__soon,
   .primary-links__soon {
-    font-size: 0.75em;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+    font-weight: 600;
     color: var(--text-faint);
     border: 1px solid var(--border);
     border-radius: 999px;
     padding: 0 0.45em;
+  }
+
+  .primary-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-block: 0 var(--space-6);
   }
 </style>
