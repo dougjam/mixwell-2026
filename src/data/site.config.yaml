@@ -115,6 +115,9 @@ bibtex: |
 
 # --- News / changelog (most recent first) ------------------------------------
 news:
+  - date: "2026-07-21"
+    text: "Presented at SIGGRAPH 2026 in the Phased & Viscous Fluids session."
+    url: "https://s2026.conference-schedule.org/session/?sess=sess108"
   - date: "2026-07-13"
     text: "Project site launched with demos, shader gallery, code libraries, and explainers."
   - date: "2026-07-01"
