@@ -1,0 +1,98 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/paths';
+
+const dzi = withBase('/scarves/teaser.dzi');
+const prefix = withBase('/vendor/openseadragon/images/');
+---
+
+<Base
+  title="Scarves"
+  description="Explore the full 16K Mixwell teaser render — zoom and pan on any device."
+>
+  <div class="container">
+    <header class="section scarves-head">
+      <p class="eyebrow">Teaser</p>
+      <h1>Scarves</h1>
+      <p class="prose muted">
+        The full 16K teaser render (15360&times;8640). Drag to pan, scroll or pinch to zoom,
+        and use the controls to reset or go full screen. Left to right: Bouquet,
+        GelgitNonpareil, Feather.
+      </p>
+    </header>
+  </div>
+
+  <div class="osd-wrap">
+    <div id="osd" class="osd" data-dzi={dzi} data-prefix={prefix}></div>
+  </div>
+</Base>
+
+<style>
+  .scarves-head {
+    margin-bottom: var(--space-6);
+  }
+  /* Full content-width viewer; a bit taller than typical section content. */
+  .osd-wrap {
+    width: 100%;
+    max-width: var(--content-width);
+    margin-inline: auto;
+    padding-inline: var(--space-6);
+    margin-bottom: var(--space-16);
+  }
+  .osd {
+    width: 100%;
+    height: min(80vh, 900px);
+    min-height: 22rem;
+    background: #0b0e14;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  /* Keep OpenSeadragon's canvas from showing a focus outline box. */
+  .osd :global(.openseadragon-canvas):focus {
+    outline: none;
+  }
+</style>
+
+<script>
+  import OpenSeadragon from 'openseadragon';
+
+  const el = document.getElementById('osd');
+  if (el instanceof HTMLElement && el.dataset.dzi) {
+    const viewer = OpenSeadragon({
+      element: el,
+      prefixUrl: el.dataset.prefix,
+      tileSources: el.dataset.dzi,
+      showNavigator: true,
+      navigatorPosition: 'BOTTOM_RIGHT',
+      navigatorHeight: '12%',
+      navigatorWidth: '12%',
+      showFullPageControl: true,
+      showRotationControl: false,
+      showFlipControl: false,
+      gestureSettingsTouch: { pinchToZoom: true, flickEnabled: true },
+      // Cap the deepest zoom at native 1:1 (source pixel = screen pixel) so full
+      // zoom shows the render's real detail crisply, never interpolated blur.
+      maxZoomPixelRatio: 1,
+      minZoomImageRatio: 0.8,
+      visibilityRatio: 1,
+      homeFillsViewer: false,
+      animationTime: 0.6,
+      springStiffness: 7,
+    });
+
+    // OpenSeadragon can measure the container before its final layout is applied,
+    // leaving a 1px drawing buffer. Re-measure whenever the container's box
+    // changes (this fires once on observe, fixing the initial size, and again on
+    // any responsive resize).
+    let sized = false;
+    const ro = new ResizeObserver(() => {
+      if (typeof viewer.forceResize === 'function') viewer.forceResize();
+      if (!sized && el.clientWidth > 1) {
+        sized = true;
+        viewer.viewport?.goHome(true);
+      }
+    });
+    ro.observe(el);
+  }
+</script>

@@ -33,3 +33,4 @@ plans/
 # Local maintainer helpers (run locally; see README)
 scripts/make-teaser.py
 scripts/sync-webgpu-demo.ps1
+scripts/make-scarves-tiles.mjs

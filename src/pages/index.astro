@@ -54,13 +54,20 @@ const sections = [
         c.teaser.teaserVideoId ? (
           <YouTubeEmbed id={c.teaser.teaserVideoId} title="Mixwell teaser" />
         ) : (
-          <img
-            class="hero__img"
-            src={withBase(c.teaser.image)}
-            alt={c.teaser.alt}
-            width="1920"
-            height="850"
-          />
+          <a
+            class="hero__link"
+            href={withBase('/scarves')}
+            aria-label="Explore the full 16K teaser render"
+          >
+            <img
+              class="hero__img"
+              src={withBase(c.teaser.image)}
+              alt={c.teaser.alt}
+              width="1920"
+              height="850"
+            />
+            <span class="hero__zoom">⤢ Explore the full 16K render</span>
+          </a>
         )
       }
     </section>
@@ -128,12 +135,40 @@ const sections = [
   .hero {
     margin-top: var(--space-8);
   }
+  .hero__link {
+    position: relative;
+    display: block;
+    cursor: zoom-in;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
   .hero__img {
     width: 100%;
     border-radius: var(--radius);
     border: 1px solid var(--border);
     aspect-ratio: 1920 / 850;
     object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .hero__link:hover .hero__img {
+    transform: scale(1.02);
+  }
+  .hero__zoom {
+    position: absolute;
+    bottom: var(--space-3);
+    right: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: color-mix(in srgb, #000 60%, transparent);
+    color: #fff;
+    font-size: var(--step--1);
+    font-weight: 550;
+    border-radius: 999px;
+    backdrop-filter: blur(4px);
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+  }
+  .hero__link:hover .hero__zoom {
+    opacity: 1;
   }
   .paper-head {
     margin-top: var(--space-8);

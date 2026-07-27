@@ -83,6 +83,24 @@ one back:
 Everything to re-enable them is already in place — just add content
 (`gallery.yaml` images, or an `.mdx` explainer) and restore the two links above.
 
+## Scarves (16K teaser deep-zoom viewer)
+
+The `/scarves` page shows the full 16K teaser render (too large for a browser to
+decode as one image) via a tiled pyramid + [OpenSeadragon](https://openseadragon.github.io).
+The landing hero links to it.
+
+- **Tiles** live in `public/scarves/` (`teaser.dzi` + `teaser_files/`, WebP,
+  committed). Regenerate from the 16K master with the local helper (needs the
+  master image path; `sharp` does the tiling):
+
+  ```bash
+  node scripts/make-scarves-tiles.mjs "D:/path/to/16k_master.jpg"
+  ```
+
+- **Viewer** is the `openseadragon` npm package (bundled per-page). Only its
+  button images are served statically, vendored in `public/vendor/openseadragon/images/`
+  (refresh after upgrading — see that folder's README).
+
 ## Interactive WebGPU demo
 
 The built demo is bundled under `public/demos/webgpu/app/` and runs as a
