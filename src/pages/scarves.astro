@@ -25,6 +25,21 @@ const prefix = withBase('/vendor/openseadragon/images/');
   <div class="osd-wrap">
     <div id="osd" class="osd" data-dzi={dzi} data-prefix={prefix}></div>
   </div>
+
+  <div class="container">
+    <aside class="viewer-note">
+      <strong>About this viewer.</strong> This is a deep-zoom view of the full 16K teaser
+      render (15360&times;8640, ~133 megapixels) built with{' '}
+      <a href="https://openseadragon.github.io" target="_blank" rel="noopener noreferrer"
+        >OpenSeadragon</a
+      >. Loading an image that large at once isn't feasible in a browser, so it's pre-cut
+      into a Deep Zoom (DZI) tile pyramid (711 tiles across 15 zoom levels), and the viewer
+      streams only the tiles visible at your current pan and zoom. Tiles are 512-pixel JPEG
+      (quality 92, 4:4:4 chroma), re-encoded from the JPEG master, and zoom is capped at the
+      render's native 1:1 resolution. Some mild compression relative to the original master
+      is therefore expected.
+    </aside>
+  </div>
 </Base>
 
 <style>
@@ -51,6 +66,20 @@ const prefix = withBase('/vendor/openseadragon/images/');
   /* Keep OpenSeadragon's canvas from showing a focus outline box. */
   .osd :global(.openseadragon-canvas):focus {
     outline: none;
+  }
+
+  /* Small technical footnote below the viewer. */
+  .viewer-note {
+    max-width: 52rem;
+    margin-bottom: var(--space-16);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+    font-size: var(--step--1);
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+  .viewer-note strong {
+    color: var(--text);
   }
 </style>
 
