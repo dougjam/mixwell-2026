@@ -1,12 +1,9 @@
 # =============================================================================
 # Shadertoy gallery
 # =============================================================================
-# Each entry renders as a card. Clicking the card opens `viewUrl` in a new tab.
-# The optional "Run inline" affordance lazily injects a single Shadertoy iframe
-# only after the user clicks it, so nothing compiles on page load.
-#
-# `embedUrl` is optional; if omitted it is derived from `viewUrl` by swapping
-# `/view/` for `/embed/`. Fill in real IDs/URLs as shaders are published.
+# Each entry renders as a card whose thumbnail links to `viewUrl` (opens the
+# shader on Shadertoy in a new tab). Add an entry by copying a block below and
+# dropping a web-optimized thumbnail in public/thumbs/.
 # =============================================================================
 
 shaders:
@@ -15,3 +12,9 @@ shaders:
     explanation: "The Mixwell brush marbling a bird, rendered live in a fragment shader."
     thumbnail: "thumbs/shader-brushbird.webp"
     viewUrl: "https://www.shadertoy.com/view/WcdXDn"
+
+  - id: maxwell-time
+    title: "Maxwell Flow Time"
+    explanation: "Maxwell's flow-time integral for steady flow past a cylinder, with streamlines. The figure from the paper and talk."
+    thumbnail: "thumbs/shader-maxwell-time.webp"
+    viewUrl: "https://www.shadertoy.com/view/XXdfz4"
