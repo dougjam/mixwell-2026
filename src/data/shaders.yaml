@@ -18,3 +18,9 @@ shaders:
     explanation: "Maxwell's flow-time integral for steady flow past a cylinder, with streamlines. The figure from the paper and talk."
     thumbnail: "thumbs/shader-maxwell-time.webp"
     viewUrl: "https://www.shadertoy.com/view/XXdfz4"
+
+  - id: pixel-zoom
+    title: "Pixel Zoom Slide"
+    explanation: "Sub-pixel structure of a marbling pattern (Gel-Git and Nonpareil): the pattern, its 16x16 subsamples, and the averaged color."
+    thumbnail: "thumbs/shader-pixel-zoom.webp"
+    viewUrl: "https://www.shadertoy.com/view/7fK3Ry"
