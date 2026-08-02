@@ -21,7 +21,7 @@ shaders:
 
   - id: brush-vs-newton
     title: "Brush vs Newton Solver"
-    explanation: "One comb stroke evaluated two ways: the fast analytic Mixwell brush versus a Newton-based advection solver, on identical input."
+    explanation: "One brush stroke (rdSegment) evaluated two ways: the fast time-stepped Mixwell Brush versus the Newton-based time-inversion advection solver."
     thumbnail: "thumbs/shader-brush-vs-newton.webp"
     viewUrl: "https://www.shadertoy.com/view/NfK3RK"
 
