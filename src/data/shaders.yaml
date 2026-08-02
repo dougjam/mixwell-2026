@@ -9,7 +9,7 @@
 shaders:
   - id: marbling-patterns
     title: "Marbling Patterns"
-    explanation: "Progressive rendering of eight marbling patterns built from analytical Reverse-Drift Functions (RDFs), from Nonpareil to SuperTornado."
+    explanation: "Progressive rendering of eight marbling patterns built from Mixwell Reverse-Drift Functions (RDFs), from Nonpareil to SuperTornado."
     thumbnail: "thumbs/shader-marbling-patterns.webp"
     viewUrl: "https://www.shadertoy.com/view/sfGGzV"
 
