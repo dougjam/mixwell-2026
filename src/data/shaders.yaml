@@ -19,6 +19,12 @@ shaders:
     thumbnail: "thumbs/shader-brushbird.webp"
     viewUrl: "https://www.shadertoy.com/view/WcdXDn"
 
+  - id: brush-vs-newton
+    title: "Brush vs Newton Solver"
+    explanation: "One comb stroke evaluated two ways: the fast analytic Mixwell brush versus a Newton-based advection solver, on identical input."
+    thumbnail: "thumbs/shader-brush-vs-newton.webp"
+    viewUrl: "https://www.shadertoy.com/view/NfK3RK"
+
   - id: maxwell-time
     title: "Maxwell Flow Time"
     explanation: "Maxwell's flow-time integral for steady flow past a cylinder, with streamlines. The figure from the paper and talk."
