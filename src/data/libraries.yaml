@@ -46,9 +46,6 @@ libraries:
       for real-time engines and shader toolchains. Two variants are provided: the
       full library, and a much lighter brush-only build for when you do not need
       the Newton solver.
-    note: >-
-      An application demonstrating periodicity-exploiting evaluation with these
-      shaders is coming soon.
     files:
       - name: "Mixwell.hlsl"
         role: "Full library"
