@@ -170,3 +170,9 @@ travels with the file if someone copies it out of the repo:
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Doug L. James and Ethan James
 ```
+
+## Replicability
+
+See [`REPLICABILITY.md`](REPLICABILITY.md) for how to reproduce representative
+results from the paper using the released code, the Shadertoy demonstrations,
+and the Houdini project files.
