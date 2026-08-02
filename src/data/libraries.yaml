@@ -91,6 +91,23 @@ libraries:
         The node network inside the project file, showing the Copernicus COP
         networks and the OpenCL node that evaluates the Mixwell kernels. Click to
         view it full size.
+      legend:
+        - name: "fig_nonpareilNoisy"
+          text: "Nonpareil (noisy comb) pattern; Fig. 23 of the paper."
+        - name: "fig_GelGit"
+          text: "Gel-Git (bidirectional comb) pattern; Fig. 24."
+        - name: "fig_spp_swirl_using_rdSegments"
+          text: "A swirl example built from rdSegment strokes (an extra example, not used in the paper)."
+        - name: "fig_Maxwell"
+          text: "Simulation of Maxwell's classic image (Sec. 2, inset); used in the talk."
+        - name: "fig_triwaves"
+          text: "Triangle-wave comb pattern; Fig. 14."
+        - name: "fig_rdSegment"
+          text: "A single rdSegment brush stroke; Fig. 12."
+        - name: "Patterns"
+          text: "The marbling pattern suite used for Figs. 25-28."
+        - name: "SupplementalTeaser-BirdwingZoom"
+          text: "The supplemental document's teaser, supplemental Fig. 1 (Brush or Newton solver supported)."
       items:
         - id: hmarble-nodes
           title: "hmarbleWeb.hipnc node network"

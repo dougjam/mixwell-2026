@@ -122,20 +122,32 @@ const licenseUrl = `${siteConfig.codeRepoUrl.replace(/\/+$/, '')}/blob/main/LICE
               <div class="shots">
                 <h3 class="scene__h">{lib.images.heading}</h3>
                 <p class="prose muted">{lib.images.intro}</p>
-                <ul class:list={['graphs', `graphs--${lib.images.layout}`]}>
-                  {lib.images.items.map((g) => (
-                    <li class="graph">
-                      <a href={withBase(`/${g.full}`)} target="_blank" rel="noopener noreferrer">
-                        <img
-                          src={withBase(`/${g.thumb}`)}
-                          alt={`${g.title} node graph`}
-                          loading="lazy"
-                        />
-                      </a>
-                      <p class="graph__cap muted">{g.title}</p>
-                    </li>
-                  ))}
-                </ul>
+                <div class="shots__body">
+                  <ul class:list={['graphs', `graphs--${lib.images.layout}`]}>
+                    {lib.images.items.map((g) => (
+                      <li class="graph">
+                        <a href={withBase(`/${g.full}`)} target="_blank" rel="noopener noreferrer">
+                          <img
+                            src={withBase(`/${g.thumb}`)}
+                            alt={`${g.title} node graph`}
+                            loading="lazy"
+                          />
+                        </a>
+                        <p class="graph__cap muted">{g.title}</p>
+                      </li>
+                    ))}
+                  </ul>
+                  {lib.images.legend && lib.images.legend.length > 0 && (
+                    <ul class="legend">
+                      {lib.images.legend.map((l) => (
+                        <li class="legend__item">
+                          <code class="legend__name">{l.name}</code>
+                          <span class="legend__text muted">{l.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             )}
           </section>
@@ -255,7 +267,40 @@ const licenseUrl = `${siteConfig.codeRepoUrl.replace(/\/+$/, '')}/blob/main/LICE
   }
   /* Portrait screenshots shouldn't stretch to full page width. */
   .graphs--tall .graph {
-    max-width: 460px;
+    width: 340px;
+    max-width: 100%;
+  }
+
+  /* Image + legend side by side on wide screens, stacked when narrow. */
+  .shots__body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    align-items: flex-start;
+  }
+  .legend {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-6) 0 0;
+    flex: 1;
+    min-width: 20rem;
+  }
+  .legend__item {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .legend__item:first-child {
+    border-top: 1px solid var(--border);
+  }
+  .legend__name {
+    display: block;
+    font-weight: 600;
+    font-size: var(--step--1);
+  }
+  .legend__text {
+    display: block;
+    font-size: var(--step--1);
+    line-height: 1.5;
   }
   .graph img {
     width: 100%;

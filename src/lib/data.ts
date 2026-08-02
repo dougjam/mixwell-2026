@@ -105,6 +105,8 @@ export interface LibraryImages {
   layout: 'wide' | 'tall';
   intro: string;
   items: GraphShot[];
+  /** Optional name/description pairs explaining what the image shows. */
+  legend?: { name: string; text: string }[];
 }
 
 export interface Library {
