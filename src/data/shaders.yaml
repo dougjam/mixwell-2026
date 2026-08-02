@@ -30,3 +30,9 @@ shaders:
     explanation: "Sub-pixel structure of a marbling pattern (Gel-Git and Nonpareil): the pattern, its 16x16 subsamples, and the averaged color."
     thumbnail: "thumbs/shader-pixel-zoom.webp"
     viewUrl: "https://www.shadertoy.com/view/7fK3Ry"
+
+  - id: lcm-demo
+    title: "LCM Demo Slide"
+    explanation: "A talk slide on periodicity: two stripe textures whose sum tiles at the least common multiple (LCM) of their periods."
+    thumbnail: "thumbs/shader-lcm.webp"
+    viewUrl: "https://www.shadertoy.com/view/7fd3DH"
