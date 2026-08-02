@@ -1,3 +1,5 @@
+![Detail of the Bouquet scarf from the Mixwell teaser render](public/images/mixwell-banner-bouquet.webp)
+
 # Replicability
 
 Notes for reproducing representative results from:
