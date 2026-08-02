@@ -39,7 +39,7 @@ shaders:
 
   - id: carlson-elliptic
     title: "Carlson and Elliptic Functions"
-    explanation: "A from-scratch GLSL implementation of Carlson's RF and RD integrals and the incomplete elliptic functions F and E they build, used in the paper's finite-stroke Newton solver."
+    explanation: "A from-scratch GLSL implementation of Carlson's symmetric integrals RF and RD, and the incomplete elliptic functions F and E built from them, following the iterative schemes from [Carlson 1995]."
     thumbnail: "thumbs/shader-carlson-elliptic.webp"
     viewUrl: "https://www.shadertoy.com/view/XXtBD8"
 
