@@ -1,3 +1,5 @@
+![Detail of the Bouquet scarf from the Mixwell teaser render](public/images/mixwell-banner-bouquet.webp)
+
 # Mixwell: Sharp 2D Fluid Brushes for Progressive Physics-Based Mixing
 
 Released code and project website for the paper:
