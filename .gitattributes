@@ -17,3 +17,5 @@ public/demos/webgpu/app/** binary
 *.ico   binary
 *.woff  binary
 *.woff2 binary
+*.hipnc binary
+*.hip   binary
