@@ -81,28 +81,35 @@ It contains worked examples for several paper figures
 Open the project, dive into a COP network, and view the output to regenerate
 the corresponding image.
 
-## 4. Redshift OSL materials (source provided; commercial renderer)
+## 4. Redshift OSL materials (renders out of the box; commercial renderer)
 
 The OSL shaders in `public/code/osl/` and the scene
 `public/code/osl/scarvesWeb.hipnc` are the materials behind the paper's teaser
-(Fig. 1), rendered with Houdini + Redshift. They are included for completeness
-but are **not part of the replication claim**, for two reasons:
+(Fig. 1), rendered with Houdini + Redshift. The scene includes a **test-quads
+setup** (three flat quads carrying the Bouquet, GelgitNonpareil, and Feather
+materials), so it renders out of the box with Houdini + Redshift and no
+additional assets.
 
-1. Redshift is a commercial renderer (no free non-commercial tier).
-2. The artist's scarf geometry is licensed and cannot be redistributed
-   (the models are available separately on TurboSquid; see the scene notes).
+These materials remain **outside the formal replication claim** only because
+Redshift is a commercial renderer with no free non-commercial tier. Two notes
+on scope:
 
-The complete shader source and Redshift Material Builder graphs are
-nonetheless included and documented on the
-[Code & Libraries](https://dougjam.github.io/mixwell-2026/code) page.
+- The full teaser composition (Fig. 1) additionally uses the artist's scarf
+  geometry, which is licensed and cannot be redistributed (available separately
+  on TurboSquid; see the scene notes). The test quads reproduce the teaser's
+  three materials without it.
+- The complete shader source and Redshift Material Builder graphs are included
+  and documented on the
+  [Code & Libraries](https://dougjam.github.io/mixwell-2026/code) page.
 
 ## 5. Scope and exclusions
 
 - The interactive WebGPU application shown on the project page is a compiled
   demo whose C++ source is not part of this release; the shader libraries it
   is built on are released here.
-- The teaser (Fig. 1) is not fully reproducible for the licensing reasons in
-  Sec. 4 above.
+- The teaser's materials render out of the box from the included scene (Sec. 4),
+  but the full Fig. 1 composition requires the separately licensed artist
+  geometry, and Redshift is commercial.
 - Not every figure in the paper is covered; the artifacts above reproduce a
   representative set of results and nearly all of the paper's core technical
   content (brushes, drift, RDF passes, pattern composition, the Newton

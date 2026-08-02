@@ -90,6 +90,10 @@ export interface HoudiniScene {
   note: string | null;
   assetLabel: string | null;
   assetUrl: string | null;
+  /** Optional follow-up paragraph shown after the note/asset link. */
+  backupNote?: string | null;
+  /** Optional render shown under the notes (thumb links to full). */
+  render?: { thumb: string; full: string; caption: string } | null;
 }
 
 export interface GraphShot {

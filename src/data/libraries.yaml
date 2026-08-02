@@ -153,10 +153,19 @@ libraries:
         The Houdini scene used to stage the teaser render, showing how the shot
         was assembled and how the Mixwell OSL materials are applied.
       note: >-
-        The artist's scarf models are not included in this public release, so the
-        scene will not render as-is.
+        The artist's scarf models are not included in this public release.
       assetLabel: "Russian Scarves (TurboSquid)"
       assetUrl: "https://www.turbosquid.com/3d-models/russian-scarves-3d-model-1194527"
+      backupNote: >-
+        As a stand-in, the scene includes a test-quads setup: three flat quads
+        carrying the Bouquet, GelgitNonpareil, and Feather materials. This means
+        the OSL shaders render right out of the box with Houdini and Redshift,
+        no extra assets required; if you have the artist geometry, the full
+        teaser staging is there too.
+      render:
+        thumb: "images/scarves-test-quads-thumb.webp"
+        full: "images/scarves-test-quads.webp"
+        caption: "The included test-quads setup rendered out of the box: Bouquet, GelgitNonpareil, and Feather. Click for full size."
     images:
       heading: "Redshift Material Builder graphs"
       layout: "wide"

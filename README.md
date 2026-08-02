@@ -22,7 +22,7 @@ The released shader libraries live under [`public/code/`](public/code/):
 | [`public/code/glsl/`](public/code/glsl/) | GLSL: full Mixwell library and a brush-only lite build |
 | [`public/code/hlsl/`](public/code/hlsl/) | HLSL: full library and a brush-only lite build |
 | [`public/code/opencl/`](public/code/opencl/) | OpenCL kernels for Houdini Copernicus, plus the `hmarbleWeb.hipnc` example project |
-| [`public/code/osl/`](public/code/osl/) | Redshift OSL shaders, plus the `scarvesWeb.hipnc` teaser scene |
+| [`public/code/osl/`](public/code/osl/) | Redshift OSL shaders, plus the `scarvesWeb.hipnc` teaser scene (includes test quads, so it renders out of the box) |
 
 You do not need to clone this repository (it also contains the website): every
 file can be read with syntax highlighting and downloaded individually from the

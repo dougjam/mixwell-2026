@@ -103,6 +103,23 @@ const licenseUrl = `${siteConfig.codeRepoUrl.replace(/\/+$/, '')}/blob/main/LICE
                     )}
                   </p>
                 )}
+                {lib.scene.backupNote && <p class="prose muted">{lib.scene.backupNote}</p>}
+                {lib.scene.render && (
+                  <figure class="teaser-ref">
+                    <a
+                      href={withBase(`/${lib.scene.render.full}`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={withBase(`/${lib.scene.render.thumb}`)}
+                        alt="Test-quads render from the included Houdini scene"
+                        loading="lazy"
+                      />
+                    </a>
+                    <figcaption class="muted">{lib.scene.render.caption}</figcaption>
+                  </figure>
+                )}
                 <div class="file__links">
                   <a href={withBase(`/${lib.dir}/${lib.scene.file}`)} download>
                     Download {lib.scene.file}
