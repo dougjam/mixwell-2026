@@ -37,6 +37,12 @@ shaders:
     thumbnail: "thumbs/shader-pixel-zoom.webp"
     viewUrl: "https://www.shadertoy.com/view/7fK3Ry"
 
+  - id: carlson-elliptic
+    title: "Carlson and Elliptic Functions"
+    explanation: "A from-scratch GLSL implementation of Carlson's RF and RD integrals and the incomplete elliptic functions F and E they build, used in the paper's finite-stroke Newton solver."
+    thumbnail: "thumbs/shader-carlson-elliptic.webp"
+    viewUrl: "https://www.shadertoy.com/view/XXtBD8"
+
   - id: lcm-demo
     title: "LCM Demo Slide"
     explanation: "A talk slide on periodicity: two stripe textures whose sum tiles at the least common multiple (LCM) of their periods."
