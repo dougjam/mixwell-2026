@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
 
 // ---------------------------------------------------------------------------
 // Deployment configuration
@@ -26,7 +27,7 @@ export default defineConfig({
   site: SITE,
   base: BASE,
   trailingSlash: 'ignore',
-  integrations: [mdx()],
+  integrations: [mdx(), sitemap()],
   markdown: {
     // Math is rendered via the build-time <Math /> component (KaTeX), so no
     // markdown math plugins are needed here.

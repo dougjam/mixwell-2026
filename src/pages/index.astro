@@ -12,6 +12,45 @@ import { siteConfig } from '../lib/data';
 
 const c = siteConfig;
 
+// Machine-readable paper metadata for search engines and Google Scholar.
+// Every value comes verbatim from site.config.yaml; nothing is invented here.
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const scholarMeta = [
+  { name: 'citation_title', content: c.title },
+  ...c.authors.map((a) => ({ name: 'citation_author', content: a.name })),
+  { name: 'citation_publication_date', content: '2026/07' },
+  { name: 'citation_journal_title', content: c.venue.full },
+  { name: 'citation_volume', content: c.venue.volume },
+  { name: 'citation_issue', content: c.venue.number },
+  { name: 'citation_doi', content: c.doi },
+  ...(c.links.paperPdf ? [{ name: 'citation_pdf_url', content: c.links.paperPdf }] : []),
+  { name: 'citation_abstract_html_url', content: pageUrl },
+];
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ScholarlyArticle',
+  headline: c.title,
+  author: c.authors.map((a) => ({
+    '@type': 'Person',
+    name: a.name,
+    ...(a.homepage ? { url: a.homepage } : {}),
+  })),
+  datePublished: '2026-07',
+  isPartOf: {
+    '@type': 'PublicationIssue',
+    issueNumber: c.venue.number,
+    isPartOf: {
+      '@type': 'PublicationVolume',
+      volumeNumber: c.venue.volume,
+      isPartOf: { '@type': 'Periodical', name: c.venue.full },
+    },
+  },
+  identifier: `https://doi.org/${c.doi}`,
+  sameAs: c.paperUrl,
+  url: pageUrl,
+  abstract: c.abstract,
+};
+
 // Landing card grid: the site's main sections.
 const sections = [
   {
@@ -39,6 +78,10 @@ const sections = [
 ---
 
 <Base>
+  <Fragment slot="head">
+    {scholarMeta.map((m) => <meta name={m.name} content={m.content} />)}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </Fragment>
   <div class="container">
     <!-- Title + authors -->
     <header class="paper-head">
