@@ -21,18 +21,18 @@ photos:
 
   - id: award-talk
     caption: "The Mixwell award talk, from the audience."
-    credit: "Photo by K.C."
+    credit: "Photo by K. Crane"
     thumb: "images/photos/award-talk-thumb.webp"
     full: "images/photos/award-talk.webp"
 
   - id: ethan-speaking
     caption: "Ethan James presenting during the Mixwell talk."
-    credit: "Photo by T.S."
+    credit: "Photo by T. Shinar"
     thumb: "images/photos/ethan-speaking-thumb.webp"
     full: "images/photos/ethan-speaking.webp"
 
   - id: at-poster
     caption: "Doug and Ethan James at the Mixwell poster."
-    credit: "Photo by Z.L."
+    credit: "Photo by Z. Li"
     thumb: "images/photos/at-poster-thumb.webp"
     full: "images/photos/at-poster.webp"
