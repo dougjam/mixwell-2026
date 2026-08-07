@@ -1,0 +1,38 @@
+# =============================================================================
+# Conference photos (/photos)
+# =============================================================================
+# Each entry renders as a figure: the thumbnail links to the full-size image.
+# Always fill in `credit` — these are other people's photographs.
+#
+# Use `externalUrl` (with no thumb/full) for a photo we link to rather than host,
+# e.g. an all-rights-reserved photo on someone else's site.
+# =============================================================================
+
+photos:
+  # Official ceremony photo: all rights reserved, so it is NOT copied into this
+  # repo. It is shown with Flickr's own embed, which serves the image from
+  # Flickr with a link back to the photo page. Do not replace this with a local
+  # copy without written permission from the rights holder.
+  - id: award-ceremony
+    caption: "Receiving the Best Paper award at SIGGRAPH 2026."
+    credit: "Photo by John Fujii / SIGGRAPH Conferences. All rights reserved."
+    embed: |
+      <a data-flickr-embed="true" href="https://www.flickr.com/photos/siggraphconferences/55407804798/in/album-72177720334790254" title="SIGGRAPH 2026 Papers Fast Forward"><img src="https://live.staticflickr.com/65535/55407804798_8615a5e38b_b.jpg" width="1024" height="683" alt="SIGGRAPH 2026 Papers Fast Forward"/></a><script async src="https://embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
+
+  - id: award-talk
+    caption: "The Mixwell award talk, from the audience."
+    credit: "Photo by K.C."
+    thumb: "images/photos/award-talk-thumb.webp"
+    full: "images/photos/award-talk.webp"
+
+  - id: ethan-speaking
+    caption: "Ethan James presenting during the Mixwell talk."
+    credit: "Photo by T.S."
+    thumb: "images/photos/ethan-speaking-thumb.webp"
+    full: "images/photos/ethan-speaking.webp"
+
+  - id: at-poster
+    caption: "Doug and Ethan James at the Mixwell poster."
+    credit: "Photo by Z.L."
+    thumb: "images/photos/at-poster-thumb.webp"
+    full: "images/photos/at-poster.webp"

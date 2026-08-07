@@ -1,0 +1,131 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/paths';
+import { photos } from '../lib/data';
+---
+
+<Base
+  title="Photos"
+  description="Photos from the Mixwell presentation and awards at SIGGRAPH 2026."
+>
+  <div class="container">
+    <header class="section">
+      <p class="eyebrow">SIGGRAPH 2026</p>
+      <h1>Photos</h1>
+      <p class="prose muted">
+        Moments from the Mixwell presentation and the Best Paper award at SIGGRAPH 2026 in Los
+        Angeles. Click a photo to view it full size.
+      </p>
+    </header>
+
+    <section class="section" aria-label="Photos">
+      <ul class="photos">
+        {
+          photos.map((p) => (
+            <li class="photo">
+              {p.embed ? (
+                <figure>
+                  <div class="photo__embed" set:html={p.embed} />
+                  <figcaption>
+                    <span class="photo__caption">{p.caption}</span>
+                    <span class="photo__credit muted">{p.credit}</span>
+                  </figcaption>
+                </figure>
+              ) : p.thumb && p.full ? (
+                <figure>
+                  <a href={withBase(`/${p.full}`)} target="_blank" rel="noopener noreferrer">
+                    <img src={withBase(`/${p.thumb}`)} alt={p.caption} loading="lazy" />
+                  </a>
+                  <figcaption>
+                    <span class="photo__caption">{p.caption}</span>
+                    <span class="photo__credit muted">{p.credit}</span>
+                  </figcaption>
+                </figure>
+              ) : (
+                <figure class="photo--link">
+                  <div class="photo__linkbox">
+                    <a href={p.externalUrl} target="_blank" rel="noopener noreferrer">
+                      {p.externalLabel ?? 'View photo'} ↗
+                    </a>
+                  </div>
+                  <figcaption>
+                    <span class="photo__caption">{p.caption}</span>
+                    <span class="photo__credit muted">{p.credit}</span>
+                  </figcaption>
+                </figure>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .photos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+    gap: var(--space-8);
+  }
+  .photo figure {
+    margin: 0;
+  }
+  .photo img {
+    width: 100%;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-subtle);
+    transition: border-color 0.15s ease;
+  }
+  .photo a:hover img {
+    border-color: var(--accent);
+  }
+  .photo figcaption {
+    margin-top: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .photo__caption {
+    font-size: var(--step--1);
+    line-height: 1.5;
+  }
+  .photo__credit {
+    font-size: var(--step--1);
+    opacity: 0.8;
+  }
+  /* Third-party embed (Flickr): make it fill the card like a hosted photo. */
+  .photo__embed :global(img) {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-subtle);
+  }
+  .photo__embed :global(a) {
+    display: block;
+  }
+  /* Flickr's client script wraps the anchor; keep it responsive. */
+  .photo__embed :global(.flickr-embed-frame),
+  .photo__embed :global(iframe) {
+    max-width: 100%;
+  }
+
+  /* Photo we link to rather than host. */
+  .photo__linkbox {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    min-height: 12rem;
+    padding: var(--space-6);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--bg-subtle);
+    font-weight: 550;
+  }
+</style>

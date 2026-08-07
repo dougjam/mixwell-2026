@@ -128,6 +128,20 @@ export interface Library {
   images?: LibraryImages | null;
 }
 
+export interface Photo {
+  id: string;
+  caption: string;
+  credit: string;
+  /** Hosted photos: thumbnail links to the full-size image. */
+  thumb?: string;
+  full?: string;
+  /** Third-party embed HTML (e.g. Flickr) for photos we must not copy locally. */
+  embed?: string;
+  /** Linked-only photos (e.g. rights-reserved images hosted elsewhere). */
+  externalUrl?: string;
+  externalLabel?: string;
+}
+
 export interface GalleryItem {
   id: string;
   caption: string;
@@ -150,6 +164,8 @@ export const libraries: Library[] =
 
 export const gallery: GalleryItem[] =
   loadYaml<{ gallery: GalleryItem[] }>('gallery.yaml').gallery ?? [];
+
+export const photos: Photo[] = loadYaml<{ photos: Photo[] }>('photos.yaml').photos ?? [];
 
 // --- Derived helpers ---------------------------------------------------------
 
