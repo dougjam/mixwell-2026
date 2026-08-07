@@ -7,7 +7,7 @@ import BibtexBlock from '../components/BibtexBlock.astro';
 import YouTubeEmbed from '../components/YouTubeEmbed.astro';
 import CardGrid from '../components/CardGrid.astro';
 import Card from '../components/Card.astro';
-import { withBase } from '../lib/paths';
+import { withBase, isExternal } from '../lib/paths';
 import { siteConfig } from '../lib/data';
 
 const c = siteConfig;
@@ -158,7 +158,11 @@ const sections = [
                 </time>
                 <span class="news__text">
                   {n.url ? (
-                    <a href={n.url} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={isExternal(n.url) ? n.url : withBase(n.url)}
+                      target={isExternal(n.url) ? '_blank' : undefined}
+                      rel={isExternal(n.url) ? 'noopener noreferrer' : undefined}
+                    >
                       {n.text}
                     </a>
                   ) : (

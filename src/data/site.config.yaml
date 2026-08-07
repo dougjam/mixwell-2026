@@ -115,6 +115,9 @@ bibtex: |
 
 # --- News / changelog (most recent first) ------------------------------------
 news:
+  - date: "2026-08-07"
+    text: "Photos from the SIGGRAPH 2026 presentation and Best Paper award."
+    url: "/photos"
   - date: "2026-08-01"
     text: "Shader gallery updated with new Shadertoy examples."
   - date: "2026-07-21"
