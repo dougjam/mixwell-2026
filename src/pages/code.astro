@@ -18,6 +18,19 @@ const licenseUrl = `${siteConfig.codeRepoUrl.replace(/\/+$/, '')}/blob/main/LICE
         free to use, including commercially. Every file below can be read here with syntax
         highlighting, downloaded directly, or browsed on GitHub.
       </p>
+      {
+        siteConfig.stamp && (
+          <a
+            class="stamp"
+            href={siteConfig.stamp.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src={siteConfig.stamp.image} alt="" width="48" height="48" loading="lazy" />
+            <span>{siteConfig.stamp.label}</span>
+          </a>
+        )
+      }
     </header>
 
     {

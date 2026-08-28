@@ -89,14 +89,6 @@ const sections = [
       <h1>{c.title}</h1>
       <AuthorBlock authors={c.authors} />
       <Badges badges={c.badges} />
-      {
-        c.stamp && (
-          <a class="stamp" href={c.stamp.url} target="_blank" rel="noopener noreferrer">
-            <img src={c.stamp.image} alt="" width="48" height="48" loading="lazy" />
-            <span>{c.stamp.label}</span>
-          </a>
-        )
-      }
     </header>
 
     <!-- Teaser hero -->
@@ -132,6 +124,14 @@ const sections = [
     <!-- Primary links -->
     <section aria-label="Primary links">
       <PrimaryLinks config={c} />
+      {
+        c.stamp && (
+          <a class="stamp" href={c.stamp.url} target="_blank" rel="noopener noreferrer">
+            <img src={c.stamp.image} alt="" width="48" height="48" loading="lazy" />
+            <span>{c.stamp.label}</span>
+          </a>
+        )
+      }
       <div id="bibtex" class="bibtex-anchor">
         <BibtexBlock bibtex={c.bibtex} />
       </div>
@@ -232,33 +232,6 @@ const sections = [
     text-wrap: balance;
   }
 
-  /* Replicability stamp badge (GRSI) */
-  .stamp {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-top: var(--space-1);
-    padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: var(--surface);
-    color: var(--text-muted);
-    font-size: var(--step--1);
-    font-weight: 550;
-    transition:
-      border-color 0.15s ease,
-      color 0.15s ease;
-  }
-  .stamp:hover {
-    text-decoration: none;
-    border-color: var(--accent);
-    color: var(--text);
-  }
-  .stamp img {
-    width: 48px;
-    height: 48px;
-    flex: none;
-  }
 
   /* Abstract: a single justified column spanning the full content width. */
   .abstract__text {
