@@ -2,6 +2,10 @@
 
 # Replicability
 
+[![Graphics Replicability Stamp](https://www.replicabilitystamp.org/logo/Reproducibility-small.png)](https://www.replicabilitystamp.org#https-github-com-dougjam-mixwell-2026)
+
+Awarded the [Graphics Replicability Stamp](https://www.replicabilitystamp.org#https-github-com-dougjam-mixwell-2026) by the GRSI on 2026-08-28.
+
 Notes for reproducing representative results from:
 
 > **Mixwell: Sharp 2D Fluid Brushes for Progressive Physics-Based Mixing**

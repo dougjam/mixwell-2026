@@ -54,6 +54,7 @@ export interface SiteConfig {
     codeRepo: string | null;
     data: string | null;
   };
+  stamp?: { label: string; url: string; image: string } | null;
   codeRepoUrl: string;
   bibtex: string;
   news: { date: string; text: string; url?: string }[];

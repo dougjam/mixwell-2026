@@ -66,6 +66,14 @@ badges:
   - "SIGGRAPH 2026 Best Paper"
   - "ACM Transactions on Graphics"
 
+# --- Replicability stamp -----------------------------------------------------
+# Awarded by the Graphics Replicability Stamp Initiative (GRSI), 2026-08-28.
+# The badge image and link are the ones GRSI provides for advertising the award.
+stamp:
+  label: "Graphics Replicability Stamp"
+  url: "https://www.replicabilitystamp.org#https-github-com-dougjam-mixwell-2026"
+  image: "https://www.replicabilitystamp.org/logo/Reproducibility-small.png"
+
 # --- Teaser hero -------------------------------------------------------------
 # Leave `teaserVideoId` null to show the static hero image.
 # Provide a YouTube ID to show a looping/embedded teaser clip instead.
@@ -115,6 +123,9 @@ bibtex: |
 
 # --- News / changelog (most recent first) ------------------------------------
 news:
+  - date: "2026-08-28"
+    text: "Mixwell received the Graphics Replicability Stamp for its released code and demos."
+    url: "https://www.replicabilitystamp.org#https-github-com-dougjam-mixwell-2026"
   - date: "2026-08-07"
     text: "Photos from the SIGGRAPH 2026 presentation and Best Paper award."
     url: "/photos"

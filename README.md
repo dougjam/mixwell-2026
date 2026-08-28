@@ -41,6 +41,11 @@ live Shadertoy demonstrations built on the GLSL library are in the
 
 ## Replicability
 
+[![Graphics Replicability Stamp](https://www.replicabilitystamp.org/logo/Reproducibility-small.png)](https://www.replicabilitystamp.org#https-github-com-dougjam-mixwell-2026)
+
+This code carries the [Graphics Replicability Stamp](https://www.replicabilitystamp.org#https-github-com-dougjam-mixwell-2026), awarded by the GRSI
+for independently verified reproducibility of the published results.
+
 See [`REPLICABILITY.md`](REPLICABILITY.md). Representative paper results can be
 reproduced in seconds from the Shadertoy demonstrations (no installation), and
 several figures regenerate from the Houdini project in the free non-commercial
